@@ -22,7 +22,7 @@ class DRVPluginsConan(ConanFile):
         "A collection of examples including analysis, data, loader and view plugins."
     )
     topics = ("manivault", "plugin", "volume rendering", "transfer function")
-    url = "https://github.com/ManiVaultStudio/VolumeViewerPlugin"
+    url = "https://github.com/ManiVaultStudio/VolumeProjectorPlugin"
     author = "B. van Lew b.van_lew@lumc.nl"  # conan recipe author
     license = "MIT"
 
