@@ -13,7 +13,7 @@
 #include <QRadioButton>
 #include <QButtonGroup>
 
-#include <VolumeData/Volumes.h>
+#include <DVRVolumeData/Volumes.h>
 
 using namespace mv::plugin;
 
@@ -176,15 +176,7 @@ class DVRVolumeLoaderFactory : public LoaderPluginFactory
                       FILE  "DVRVolumeLoader.json")
 
 public:
-    DVRVolumeLoaderFactory(void) {}
-    ~DVRVolumeLoaderFactory(void) override {}
-
-    /**
-     * Get plugin icon
-     * @param color Icon color for flat (font) icons
-     * @return Icon
-     */
-    QIcon getIcon(const QColor& color = Qt::black) const override;
+    DVRVolumeLoaderFactory(void);
 
     LoaderPlugin* produce() override;
 

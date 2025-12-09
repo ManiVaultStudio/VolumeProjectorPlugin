@@ -264,9 +264,9 @@ mv::Vector3f DVRVolumeLoader::normalizePosition(const mv::Vector3f& pos, mv::Vec
 // Factory
 // =============================================================================
 
-QIcon DVRVolumeLoaderFactory::getIcon(const QColor& color /*= Qt::black*/) const
+DVRVolumeLoaderFactory::DVRVolumeLoaderFactory(void)
 {
-    return Application::getIconFont("FontAwesome").getIcon("cube");
+    setIconByName("cube");
 }
 
 LoaderPlugin* DVRVolumeLoaderFactory::produce()
