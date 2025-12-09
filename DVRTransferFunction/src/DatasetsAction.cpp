@@ -5,6 +5,8 @@
 #include <ClusterData/ClusterData.h>
 #include <ColorData/ColorData.h>
 
+#include <util/StyledIcon.h>
+
 #include <QMenu>
 
 using namespace mv;
@@ -15,7 +17,7 @@ DatasetsAction::DatasetsAction(QObject* parent, const QString& title) :
     _transferFunctionPlugin(dynamic_cast<TransferFunctionPlugin*>(parent->parent())),
     _positionDatasetPickerAction(this, "Position")
 {
-    setIcon(mv::Application::getIconFont("FontAwesome").getIcon("database"));
+    setIcon(util::StyledIcon("database"));
     setToolTip("Manage loaded datasets for position and color");
     setConfigurationFlag(WidgetAction::ConfigurationFlag::ForceCollapsedInGroup);
     setLabelSizingType(LabelSizingType::Auto);

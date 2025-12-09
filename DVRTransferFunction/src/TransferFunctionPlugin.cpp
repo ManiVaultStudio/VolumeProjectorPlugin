@@ -6,6 +6,7 @@
 #include <DataHierarchyItem.h>
 
 #include <util/PixelSelectionTool.h>
+#include <util/StyledIcon.h>
 #include <util/Timer.h>
 
 #include <ClusterData/ClusterData.h>
@@ -137,7 +138,7 @@ TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
 
     auto& selectionAction = _settingsAction.getSelectionAction();
 
-    getSamplerAction().setViewGeneratorFunction([this](const ViewPluginSamplerAction::SampleContext& toolTipContext) -> QString {
+    getSamplerAction().setHtmlViewGeneratorFunction([this](const ViewPluginSamplerAction::SampleContext& toolTipContext) -> QString {
         QStringList localPointIndices, globalPointIndices;
 
         for (const auto& localPointIndex : toolTipContext["LocalPointIndices"].toList())
@@ -374,11 +375,7 @@ std::uint32_t TransferFunctionPlugin::getNumberOfPoints() const
 
 TransferFunctionPluginFactory::TransferFunctionPluginFactory()
 {
-}
-
-QIcon TransferFunctionPluginFactory::getIcon(const QColor& color /*= Qt::black*/) const
-{
-    return Application::getIconFont("FontAwesome").getIcon("braille", color);
+    setIconByName("braille");
 }
 
 ViewPlugin* TransferFunctionPluginFactory::produce()
@@ -397,10 +394,9 @@ PluginTriggerActions TransferFunctionPluginFactory::getPluginTriggerActions(cons
     const auto numberOfDatasets = datasets.count();
 
     if (PluginFactory::areAllDatasetsOfTheSameType(datasets, PointType)) {
-        auto& fontAwesome = Application::getIconFont("FontAwesome");
 
         if (numberOfDatasets >= 1) {
-            auto pluginTriggerAction = new PluginTriggerAction(const_cast<TransferFunctionPluginFactory*>(this), this, "TransferFunction", "View selected datasets side-by-side in separate scatter plot viewers", fontAwesome.getIcon("braille"), [this, getInstance, datasets](PluginTriggerAction& pluginTriggerAction) -> void {
+            auto pluginTriggerAction = new PluginTriggerAction(const_cast<TransferFunctionPluginFactory*>(this), this, "TransferFunction", "View selected datasets side-by-side in separate scatter plot viewers", icon(), [this, getInstance, datasets](PluginTriggerAction& pluginTriggerAction) -> void {
                 for (const auto& dataset : datasets)
                     getInstance()->loadData(Datasets({ dataset }));
             });

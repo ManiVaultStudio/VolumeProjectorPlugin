@@ -3,6 +3,7 @@
 #include "TransferFunctionWidget.h"
 
 #include <util/PixelSelectionTool.h>
+#include <util/StyledIcon.h>
 
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -13,8 +14,8 @@ SelectionAction::SelectionAction(QObject* parent, const QString& title) :
     GroupAction(parent, title),
     _pixelSelectionAction(this, "Point Selection")
 {
-    setIcon(mv::Application::getIconFont("FontAwesome").getIcon("mouse-pointer"));
-    
+    setIcon(util::StyledIcon("mouse-pointer"));
+
     setConfigurationFlag(WidgetAction::ConfigurationFlag::HiddenInActionContextMenu);
     setConfigurationFlag(WidgetAction::ConfigurationFlag::ForceCollapsedInGroup);
 

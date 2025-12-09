@@ -276,7 +276,8 @@ void TransferFunctionWidget::setData(const std::vector<Vector2f>* points)
     auto dataBounds = getDataBounds(*points);
 
     // pass un-adjusted data bounds to renderer for 2D colormapping
-    _pointRenderer.setBounds(dataBounds);
+    const auto dataBoundsRect = QRectF(QPointF(dataBounds.getLeft(), dataBounds.getBottom()), QSizeF(dataBounds.getWidth(), dataBounds.getHeight()));
+    _pointRenderer.setDataBounds(dataBoundsRect);
 
     _dataRectangleAction.setBounds(dataBounds);
 	int w = width();
