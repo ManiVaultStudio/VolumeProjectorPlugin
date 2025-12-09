@@ -11,7 +11,7 @@
 #include <QOpenGLFunctions>
 
 #include <QColor>
-#include <VolumeData/Volumes.h>
+#include <DVRVolumeData/Volumes.h>
 #include <ImageData/Images.h>
 
 

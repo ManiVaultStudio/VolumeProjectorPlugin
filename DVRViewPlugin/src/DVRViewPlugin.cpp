@@ -12,7 +12,7 @@
 
 #include <random>
 #include <numeric>
-#include <hnswlib.h>
+#include <hnswlib/hnswlib.h>
 #include <iostream>
 #include <vector>
 
@@ -400,7 +400,7 @@ DVRViewPluginFactory::DVRViewPluginFactory() :
     _statusBarPopupGroupAction(this, "Popup Group"),
     _statusBarPopupAction(this, "Popup")
 {
-    
+    setIconByName("braille");
 }
 
 void DVRViewPluginFactory::initialize()
@@ -441,11 +441,6 @@ void DVRViewPluginFactory::initialize()
     setStatusBarAction(_statusBarAction);
 }
 
-QIcon DVRViewPluginFactory::getIcon(const QColor& color /*= Qt::black*/) const
-{
-    return mv::Application::getIconFont("FontAwesome").getIcon("braille", color);
-}
-
 mv::DataTypes DVRViewPluginFactory::supportedDataTypes() const
 {
     DataTypes supportedTypes;
@@ -467,7 +462,7 @@ mv::gui::PluginTriggerActions DVRViewPluginFactory::getPluginTriggerActions(cons
     const auto numberOfDatasets = datasets.count();
 
     if (numberOfDatasets >= 1 && PluginFactory::areAllDatasetsOfTheSameType(datasets, PointType)) {
-        auto pluginTriggerAction = new PluginTriggerAction(const_cast<DVRViewPluginFactory*>(this), this, "Example GL", "OpenGL view example data", getIcon(), [this, getPluginInstance, datasets](PluginTriggerAction& pluginTriggerAction) -> void {
+        auto pluginTriggerAction = new PluginTriggerAction(const_cast<DVRViewPluginFactory*>(this), this, "Example GL", "OpenGL view example data", icon(), [this, getPluginInstance, datasets](PluginTriggerAction& pluginTriggerAction) -> void {
             for (auto& dataset : datasets)
                 getPluginInstance()->loadData(dataset);
         });

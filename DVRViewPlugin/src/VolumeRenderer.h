@@ -16,12 +16,12 @@
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
 #include <vector>
-#include <VolumeData/Volumes.h>
+#include <DVRVolumeData/Volumes.h>
 #include <ImageData/Images.h>
 #include <PointData/PointData.h>
 #include "MCArrays.h"
 
-#include <hnswlib.h>
+#include <hnswlib/hnswlib.h>
 #ifdef USE_FAISS
 #include <faiss/IndexIVFFlat.h>
 #include <faiss/IndexFlat.h>
