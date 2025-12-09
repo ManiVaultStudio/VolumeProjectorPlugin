@@ -105,7 +105,7 @@ add_custom_command(TARGET ${VOLUMEDATA} POST_BUILD
     COMMAND ${CMAKE_COMMAND}
         --install ${CMAKE_CURRENT_BINARY_DIR}
         --config $<CONFIGURATION>
-        --prefix ${MV_INSTALL_DIR}
+        --prefix ${ManiVault_INSTALL_DIR}/$<CONFIGURATION>
 )
 
 # -----------------------------------------------------------------------------
