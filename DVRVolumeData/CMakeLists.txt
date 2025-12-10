@@ -18,32 +18,32 @@ find_package(ManiVault COMPONENTS Core PointData CONFIG QUIET)
 # Source files
 # -----------------------------------------------------------------------------
 set(VOLUME_DATA_HEADERS 
-    src/Volume.h
-    src/VolumeData.h
-    src/Volumes.h
-    src/Size3D.h
-    src/Size3D.cpp
+    DVRVolumeData/Volume.h
+    DVRVolumeData/VolumeData.h
+    DVRVolumeData/Volumes.h
+    DVRVolumeData/Size3D.h
+    DVRVolumeData/Size3D.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/dvrvolumedata_export.h
 )
 
 set(VOLUME_DATA_SOURCES 
-    src/Volume.cpp
-    src/VolumeData.cpp
-    src/Volumes.cpp
+    DVRVolumeData/Volume.cpp
+    DVRVolumeData/VolumeData.cpp
+    DVRVolumeData/Volumes.cpp
 )
 
 set(ACTIONS_SOURCES 
-    src/InfoAction.h
-    src/InfoAction.cpp
+    DVRVolumeData/InfoAction.h
+    DVRVolumeData/InfoAction.cpp
 )
 
 set(ACTIONS_SOURCES 
-    src/InfoAction.h
-    src/InfoAction.cpp
+    DVRVolumeData/InfoAction.h
+    DVRVolumeData/InfoAction.cpp
 )
 
 set(AUX 
-    src/VolumeData.json
+    DVRVolumeData/VolumeData.json
 )
 
 source_group(Actions FILES ${ACTIONS_SOURCES})

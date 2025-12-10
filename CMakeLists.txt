@@ -29,6 +29,8 @@ endif()
 # DVRPlugins
 # -----------------------------------------------------------------------------
 
+set(DVRVolumeData_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/DVRVolumeData")
+
 add_subdirectory(DVRVolumeData)         # add first since other projects depend on it
 add_subdirectory(DVRVolumeLoader)
 add_subdirectory(DVRViewPlugin)

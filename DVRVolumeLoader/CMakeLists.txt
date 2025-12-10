@@ -37,6 +37,7 @@ add_library(${DVRVOLUMELOADER} SHARED ${SOURCES} ${JSON})
 # Target include directories
 # -----------------------------------------------------------------------------
 target_include_directories(${DVRVOLUMELOADER} PRIVATE "${ManiVault_INCLUDE_DIR}")
+target_include_directories(${DVRVOLUMELOADER} PRIVATE "${DVRVolumeData_INCLUDE_DIR}")
 
 # -----------------------------------------------------------------------------
 # Target properties

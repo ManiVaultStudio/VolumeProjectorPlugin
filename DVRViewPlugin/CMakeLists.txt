@@ -116,6 +116,7 @@ add_library(${DVRVIEWPLUGIN} SHARED ${SOURCES} ${RESOURCES} ${RESOURCE_FILES} ${
 # Target Include Directories
 # -----------------------------------------------------------------------------
 target_include_directories(${DVRVIEWPLUGIN} PRIVATE "${ManiVault_INCLUDE_DIR}")
+target_include_directories(${DVRVIEWPLUGIN} PRIVATE "${DVRVolumeData_INCLUDE_DIR}")
 
 # -----------------------------------------------------------------------------
 # Target Properties
