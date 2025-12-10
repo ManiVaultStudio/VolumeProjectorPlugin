@@ -56,16 +56,6 @@ source_group(Aux FILES ${AUX})
 add_library(${VOLUMEDATA} SHARED ${VOLUME_DATA_HEADERS} ${VOLUME_DATA_SOURCES} ${ACTIONS_SOURCES} ${AUX})
 add_library(ManiVault::${VOLUMEDATA} ALIAS ${VOLUMEDATA})
 
-# -----------------------------------------------------------------------------
-# Target include directories
-# -----------------------------------------------------------------------------
-target_include_directories(${VOLUMEDATA} PRIVATE PRIVATE "${ManiVault_INCLUDE_DIR}")
-
-# -----------------------------------------------------------------------------
-# Target properties
-# -----------------------------------------------------------------------------
-target_compile_features(${VOLUMEDATA} PRIVATE cxx_std_20)
-
 # Generate a header file that contains the EXPORT macro for this library.
 include(GenerateExportHeader)
 generate_export_header(${VOLUMEDATA})
@@ -75,7 +65,20 @@ file(GLOB EXPORT_HEADER_FILE_NAME
     RELATIVE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/*_export.h)
 list(APPEND VOLUME_DATA_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/${EXPORT_HEADER_FILE_NAME})
 
-set_target_properties(${VOLUMEDATA} PROPERTIES PUBLIC_HEADER "${VOLUME_DATA_HEADERS}")
+# -----------------------------------------------------------------------------
+# Target include directories
+# -----------------------------------------------------------------------------
+target_include_directories(${VOLUMEDATA} PRIVATE PRIVATE "${ManiVault_INCLUDE_DIR}")
+target_include_directories(${VOLUMEDATA}
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+        $<INSTALL_INTERFACE:include>
+)
+
+# -----------------------------------------------------------------------------
+# Target properties
+# -----------------------------------------------------------------------------
+target_compile_features(${VOLUMEDATA} PRIVATE cxx_std_20)
 
 if(MV_UNITY_BUILD)
     set_target_properties(${VOLUMEDATA} PROPERTIES UNITY_BUILD ON)
