@@ -1,12 +1,13 @@
 #pragma once
 
-#include <PluginGlobalSettingsGroupAction.h>
-#include "GlobalSettingsAction.h"
 #include <actions/DecimalRangeAction.h>
 #include <actions/IntegralRangeAction.h>
 #include <actions/ToggleAction.h>
 #include <actions/OptionAction.h>
-#include <pointdata/DimensionPickerAction.h>
+
+#include <PointData/DimensionPickerAction.h>
+
+#include <PluginGlobalSettingsGroupAction.h>
 
 namespace mv {
     namespace plugin {
