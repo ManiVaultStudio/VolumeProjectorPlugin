@@ -177,6 +177,15 @@ void TransferFunctionPlugin::init()
     layout->addWidget(_primaryToolbarAction.createWidget(&getWidget()));
     layout->addWidget(_transferFunctionWidget, 100);
 
+    auto& navigationAction = _transferFunctionWidget->getPointRendererNavigator().getNavigationAction();
+
+    if (const auto navigationWidget = navigationAction.createWidget(&getWidget())) {
+        layout->addWidget(navigationWidget);
+        layout->setAlignment(navigationWidget, Qt::AlignCenter);
+
+        navigationAction.setParent(&_settingsAction);
+    }
+
     getWidget().setLayout(layout);
 
     addDockingAction(&_materialSettings);
@@ -219,10 +228,7 @@ void TransferFunctionPlugin::loadData(const Datasets& datasets)
 void TransferFunctionPlugin::createSubset(const bool& fromSourceData /*= false*/, const QString& name /*= ""*/)
 {
     // Create the subset
-    mv::Dataset<DatasetImpl> subset;
-
-    // Avoid making a bigger subset than the current data by restricting the selection to the current data
-    subset = _positionDataset->createSubsetFromVisibleSelection(name, _positionDataset);
+    mv::Dataset<DatasetImpl> subset = _positionDataset->createSubsetFromVisibleSelection(name, _positionDataset);
 
     subset->getDataHierarchyItem().select();
 }
@@ -242,6 +248,8 @@ void TransferFunctionPlugin::positionDatasetChanged()
 
     _numPoints = _positionDataset->getNumPoints();
     
+    _transferFunctionWidget->getPointRendererNavigator().resetView(true);
+
     updateVolumeData();
 }
 
@@ -259,9 +267,7 @@ void TransferFunctionPlugin::updateVolumeData()
     // If no dataset has been selected, don't do anything
     if (_positionDataset.isValid()) {
 
-
-
-        // Determine number of points depending on if its a full dataset or a subset
+    	// Determine number of points depending on if its a full dataset or a subset
         _numPoints = _positionDataset->getNumPoints();
 
         // Extract 2-dimensional points from the data set based on the selected dimensions

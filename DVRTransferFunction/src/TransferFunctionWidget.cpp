@@ -43,7 +43,7 @@ namespace
 
 TransferFunctionWidget::TransferFunctionWidget() :
     QOpenGLWidget(),
-    _pointRenderer(),
+    _pointRenderer(this),
     _isInitialized(false),
     _backgroundColor(255, 255, 255, 255),
     _widgetSizeInfo(),
@@ -132,6 +132,9 @@ TransferFunctionWidget::TransferFunctionWidget() :
 
         QObject::connect(winHandle, &QWindow::screenChanged, this, &TransferFunctionWidget::updatePixelRatio, Qt::UniqueConnection);
     });
+
+    connect(&_pointRenderer.getNavigator(), &Navigator2D::zoomRectangleWorldChanged, this, [this]() -> void { update(); });
+    _pointRenderer.getNavigator().setEnabled(true);
 }
 
 bool TransferFunctionWidget::event(QEvent* event)
@@ -278,6 +281,8 @@ void TransferFunctionWidget::setData(const std::vector<Vector2f>* points)
     _boundsPointsWindow = QRect((w - size) / 2.0f, (h - size) / 2.0f, size, size);
 
     _pointRenderer.setData(*points);
+    _pointRenderer.getNavigator().resetView(true);
+
     update();
 }
 
@@ -412,30 +417,6 @@ void TransferFunctionWidget::createDatasets()
 
 void TransferFunctionWidget::resizeGL(int w, int h)
 {
-    _widgetSizeInfo.width       = static_cast<float>(w);
-    _widgetSizeInfo.height      = static_cast<float>(h);
-    _widgetSizeInfo.minWH       = _widgetSizeInfo.width < _widgetSizeInfo.height ? _widgetSizeInfo.width : _widgetSizeInfo.height;
-    _widgetSizeInfo.ratioWidth  = _widgetSizeInfo.width / _widgetSizeInfo.minWH;
-    _widgetSizeInfo.ratioHeight = _widgetSizeInfo.height / _widgetSizeInfo.minWH;
-
-	_boundsPointsWindow = QRect((w - _widgetSizeInfo.minWH) / 2.0f, (h - _widgetSizeInfo.minWH) / 2.0f, _widgetSizeInfo.minWH, _widgetSizeInfo.minWH);
-	qDebug() << "Bounds of the points in the window: " << _boundsPointsWindow;
-
-    // Update the bounds for all interactive shapes
-    for (auto& shape : _interactiveShapes) {
-        shape.setBounds(_boundsPointsWindow);
-    }
-
-
-    // we need this here as we do not have the screen yet to get the actual devicePixelRatio when the view is created
-    _pixelRatio = devicePixelRatio();
-
-    // Pixel ratio tells us how many pixels map to a point
-    // That is needed as macOS calculates in points and we do in pixels
-    // On macOS high dpi displays pixel ration is 2
-    w *= _pixelRatio;
-    h *= _pixelRatio;
-
     _pointRenderer.resize(QSize(w, h));
 }
 

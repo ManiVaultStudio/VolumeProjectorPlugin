@@ -115,6 +115,14 @@ public: // Selection
      */
     bool getRandomizedDepthEnabled() const;
 
+public: // Navigators
+
+    /**
+     * Get the navigator for the point renderer
+     * @return Reference to the navigator
+     */
+    mv::Navigator2D& getPointRendererNavigator() { return _pointRenderer.getNavigator(); }
+
 protected:
     void initializeGL()         Q_DECL_OVERRIDE;
     void resizeGL(int w, int h) Q_DECL_OVERRIDE;
