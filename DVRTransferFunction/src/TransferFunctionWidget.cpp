@@ -82,14 +82,14 @@ TransferFunctionWidget::TransferFunctionWidget() :
 
     connect(&_pixelSelectionTool, &PixelSelectionTool::ended, [this]() {
         if (isInitialized() && _pixelSelectionTool.isEnabled() && _areaSelectionBounds.isValid() && _createShape) {
-            QRectF relativeRect(
-                float(_areaSelectionBounds.left() - _boundsPointsWindow.left()) / _boundsPointsWindow.width(),
-                float(_areaSelectionBounds.top() - _boundsPointsWindow.top()) / _boundsPointsWindow.height(),
-                float(_areaSelectionBounds.width()) / _boundsPointsWindow.width(),
-                float(_areaSelectionBounds.height()) / _boundsPointsWindow.height()
+            const QRectF relativeRect(
+                static_cast<float>(_areaSelectionBounds.left() - _boundsPointsWindow.left()) / _boundsPointsWindow.width(),
+                static_cast<float>(_areaSelectionBounds.top() - _boundsPointsWindow.top()) / _boundsPointsWindow.height(),
+                static_cast<float>(_areaSelectionBounds.width()) / _boundsPointsWindow.width(),
+                static_cast<float>(_areaSelectionBounds.height()) / _boundsPointsWindow.height()
             );
-            int borderWidth = 2;
-            QRectF adjustedBounds = _areaSelectionBounds.adjusted(borderWidth, borderWidth, -borderWidth, -borderWidth); // The areapixmap doesn't contain the borders
+            const int borderWidth = 2;
+            const QRectF adjustedBounds = _areaSelectionBounds.adjusted(borderWidth, borderWidth, -borderWidth, -borderWidth); // The areapixmap doesn't contain the borders
             QColor areaColor = _pixelSelectionTool.getMainColor();
 			areaColor.setAlpha(50); // This is the default modification of the areaColor compared to the mainColor which we can not reach but we simulate here
 
@@ -273,16 +273,16 @@ PixelSelectionTool& TransferFunctionWidget::getPixelSelectionTool()
 // by reference then we can upload the data to the GPU, but not store it in the widget.
 void TransferFunctionWidget::setData(const std::vector<Vector2f>* points)
 {
-    auto dataBounds = getDataBounds(*points);
+    const auto dataBounds = getDataBounds(*points);
 
     // pass un-adjusted data bounds to renderer for 2D colormapping
     const auto dataBoundsRect = QRectF(QPointF(dataBounds.getLeft(), dataBounds.getBottom()), QSizeF(dataBounds.getWidth(), dataBounds.getHeight()));
     _pointRenderer.setDataBounds(dataBoundsRect);
 
     _dataRectangleAction.setBounds(dataBounds);
-	int w = width();
-	int h = height();
-    int size = w < h ? w : h;
+	const int w = width();
+	const int h = height();
+    const int size = w < h ? w : h;
     _boundsPointsWindow = QRect((w - size) / 2.0f, (h - size) / 2.0f, size, size);
 
     _pointRenderer.setData(*points);

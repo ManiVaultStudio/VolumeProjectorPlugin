@@ -31,8 +31,8 @@ void MaterialTransitionsAction::initialize(TransferFunctionPlugin* transferFunct
 		_interactiveShapes = interactiveShapes;
         
         // Resize the table to the new size
-        auto& shapes = widget.getInteractiveShapes();
-        int tableSize = shapes.size() + 1;
+        const auto& shapes = widget.getInteractiveShapes();
+        const size_t tableSize = shapes.size() + 1;
         _materialTransitionTable.resize(tableSize); 
 
         for (size_t i = 0; i < tableSize; ++i) {
@@ -57,8 +57,8 @@ void MaterialTransitionsAction::initialize(TransferFunctionPlugin* transferFunct
         _interactiveShapes = interactiveShapes;
         
         // Resize the table to the new size
-        auto& shapes = widget.getInteractiveShapes();
-        int tableSize = shapes.size() + 1;
+        const auto& shapes = widget.getInteractiveShapes();
+        const size_t tableSize = shapes.size() + 1;
         _materialTransitionTable.resize(tableSize); 
 
         emit transitionChanged(_materialTransitionTable);
@@ -182,7 +182,7 @@ MaterialTransitionsAction::Widget::Widget(QWidget* parent, MaterialTransitionsAc
 
 void MaterialTransitionsAction::Widget::updateTable(const std::vector<std::vector<QColor>>& transitions)
 {
-    int size = transitions.size();
+    const int size = static_cast<int>(transitions.size());
     _tableWidget.setRowCount(size);
     _tableWidget.setColumnCount(size);
 
@@ -204,7 +204,7 @@ void MaterialTransitionsAction::Widget::updateTable(const std::vector<std::vecto
 
 void MaterialTransitionsAction::Widget::updateHeaderColors(std::vector<InteractiveShape> interactiveShapes)
 {
-    int size = interactiveShapes.size() + 1;
+    const int size = static_cast<int>(interactiveShapes.size()) + 1;
     // Set the background color for the headers
 	QBrush headerBrush(Qt::black);
     for (int i = 1; i < size; ++i) {

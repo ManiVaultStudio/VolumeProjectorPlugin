@@ -61,7 +61,7 @@ public:
     /**
      * Feed 2-dimensional data to the transferFunction.
      */
-    void setData(const std::vector<mv::Vector2f>* data);
+    void setData(const std::vector<mv::Vector2f>* points);
     void setHighlights(const std::vector<char>& highlights, const std::int32_t& numSelectedPoints);
 
     /**
