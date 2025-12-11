@@ -59,70 +59,70 @@ DVRViewPlugin::DVRViewPlugin(const PluginFactory* factory) :
         const auto dataType = dataset->getDataType();
         const auto dataTypes = DataTypes({ VolumeType, ImageType, PointType });
 
-        if (dataTypes.contains(dataType)) {
-            if (dataType == VolumeType) {
-                if (datasetId == getVolumeDataSetID()) {
-                    dropRegions << new DropWidget::DropRegion(this, "Warning", "Data already loaded", "exclamation-circle", false);
-                }
-                else {
-                    auto candidateDataset = mv::data().getDataset<Volumes>(datasetId);
+        if (!dataTypes.contains(dataType)) {
+            dropRegions << new DropWidget::DropRegion(this, "Incompatible data", "This type of data is not supported it only supports Volume Data", "exclamation-circle", false);
+            return dropRegions;
+        }
 
-                    dropRegions << new DropWidget::DropRegion(this, "Volumes", QString("Visualize %1 as a Volume").arg(datasetGuiName), "map-marker-alt", true, [this, candidateDataset]() {
-                        loadData({ candidateDataset });
-                        });
-
-                }
+        if (dataType == VolumeType) {
+            if (datasetId == getVolumeDataSetID()) {
+                dropRegions << new DropWidget::DropRegion(this, "Warning", "Data already loaded", "exclamation-circle", false);
             }
-            else if (dataType == ImageType) {
-                if (datasetId == getTfDatasetID()) {
-                    dropRegions << new DropWidget::DropRegion(this, "Warning", "Data already loaded", "exclamation-circle", false);
-                }
-                else {
-                    auto candidateDataset = mv::data().getDataset<Images>(datasetId);
-                    dropRegions << new DropWidget::DropRegion(this, "Images", QString("Pass %1 along as the transfer function").arg(datasetGuiName), "map-marker-alt", true, [this, candidateDataset]() {
-                        loadTfData(candidateDataset);
-                        });
-                }
+            else {
+                auto candidateDataset = mv::data().getDataset<Volumes>(datasetId);
 
-                if (datasetId == getMaterialTransitionDataSetID()) {
-                    dropRegions << new DropWidget::DropRegion(this, "Warning", "Data already loaded", "exclamation-circle", false);
-                }
-                else {
-                    auto candidateDataset = mv::data().getDataset<Images>(datasetId);
-                    dropRegions << new DropWidget::DropRegion(this, "Images", QString("Pass %1 along as the material transition texture").arg(datasetGuiName), "map-marker-alt", true, [this, candidateDataset]() {
-                        loadMaterialTransitionData(candidateDataset);
-                        });
-                }
+                dropRegions << new DropWidget::DropRegion(this, "Volumes", QString("Visualize %1 as a Volume").arg(datasetGuiName), "map-marker-alt", true, [this, candidateDataset]() {
+                    loadData({ candidateDataset });
+                    });
 
-                if (datasetId == getMaterialPositionsDataSetID()) {
-                    dropRegions << new DropWidget::DropRegion(this, "Warning", "Data already loaded", "exclamation-circle", false);
-                }
-                else {
-                    auto candidateDataset = mv::data().getDataset<Images>(datasetId);
-                    dropRegions << new DropWidget::DropRegion(this, "Images", QString("Pass %1 along as the material positions texture").arg(datasetGuiName), "map-marker-alt", true, [this, candidateDataset]() {
-                        loadMaterialPositionsData(candidateDataset);
-                        });
-                }
-            }
-            else if (dataType == PointType) {
-                if (datasetId == getReducedPosDataSetID()) {
-                    dropRegions << new DropWidget::DropRegion(this, "Warning", "Data already loaded", "exclamation-circle", false);
-                }
-                else {
-                    auto candidateDataset = mv::data().getDataset<Points>(datasetId);
-                    if (candidateDataset->getNumDimensions() == 2) {
-                        dropRegions << new DropWidget::DropRegion(this, "Points", QString("Pass %1 along as dimension reduced point locations").arg(datasetGuiName), "map-marker-alt", true, [this, candidateDataset]() {
-                            loadReducedPosData({ candidateDataset });
-                            });
-                    }
-                    else {
-                        dropRegions << new DropWidget::DropRegion(this, "Incompatible data", "This type of data is not supported it only supports 2D data", "exclamation-circle", false);
-                    }
-                }
             }
         }
-        else {
-            dropRegions << new DropWidget::DropRegion(this, "Incompatible data", "This type of data is not supported it only supports Volume Data", "exclamation-circle", false);
+        else if (dataType == ImageType) {
+            if (datasetId == getTfDatasetID()) {
+                dropRegions << new DropWidget::DropRegion(this, "Warning", "Data already loaded", "exclamation-circle", false);
+            }
+            else {
+                auto candidateDataset = mv::data().getDataset<Images>(datasetId);
+                dropRegions << new DropWidget::DropRegion(this, "Images", QString("Pass %1 along as the transfer function").arg(datasetGuiName), "map-marker-alt", true, [this, candidateDataset]() {
+                    loadTfData(candidateDataset);
+                    });
+            }
+
+            if (datasetId == getMaterialTransitionDataSetID()) {
+                dropRegions << new DropWidget::DropRegion(this, "Warning", "Data already loaded", "exclamation-circle", false);
+            }
+            else {
+                auto candidateDataset = mv::data().getDataset<Images>(datasetId);
+                dropRegions << new DropWidget::DropRegion(this, "Images", QString("Pass %1 along as the material transition texture").arg(datasetGuiName), "map-marker-alt", true, [this, candidateDataset]() {
+                    loadMaterialTransitionData(candidateDataset);
+                    });
+            }
+
+            if (datasetId == getMaterialPositionsDataSetID()) {
+                dropRegions << new DropWidget::DropRegion(this, "Warning", "Data already loaded", "exclamation-circle", false);
+            }
+            else {
+                auto candidateDataset = mv::data().getDataset<Images>(datasetId);
+                dropRegions << new DropWidget::DropRegion(this, "Images", QString("Pass %1 along as the material positions texture").arg(datasetGuiName), "map-marker-alt", true, [this, candidateDataset]() {
+                    loadMaterialPositionsData(candidateDataset);
+                    });
+            }
+        }
+        else if (dataType == PointType) {
+            if (datasetId == getReducedPosDataSetID()) {
+                dropRegions << new DropWidget::DropRegion(this, "Warning", "Data already loaded", "exclamation-circle", false);
+            }
+            else {
+                auto candidateDataset = mv::data().getDataset<Points>(datasetId);
+                if (candidateDataset->getNumDimensions() == 2) {
+                    dropRegions << new DropWidget::DropRegion(this, "Points", QString("Pass %1 along as dimension reduced point locations").arg(datasetGuiName), "map-marker-alt", true, [this, candidateDataset]() {
+                        loadReducedPosData({ candidateDataset });
+                        });
+                }
+                else {
+                    dropRegions << new DropWidget::DropRegion(this, "Incompatible data", "This type of data is not supported it only supports 2D data", "exclamation-circle", false);
+                }
+            }
         }
 
         return dropRegions;
