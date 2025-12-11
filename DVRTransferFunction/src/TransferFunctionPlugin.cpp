@@ -267,7 +267,11 @@ void TransferFunctionPlugin::updateVolumeData()
     // If no dataset has been selected, don't do anything
     if (_positionDataset.isValid()) {
 
-    	// Determine number of points depending on if its a full dataset or a subset
+        // ensure point size and opacity is updated
+        _transferFunctionWidget->setPointOpacity(_settingsAction.getPointsAction().getOpacity());
+        _transferFunctionWidget->setPointSize(_settingsAction.getPointsAction().getSize());
+
+    	// Determine number of points depending on if it's a full dataset or a subset
         _numPoints = _positionDataset->getNumPoints();
 
         // Extract 2-dimensional points from the data set based on the selected dimensions
