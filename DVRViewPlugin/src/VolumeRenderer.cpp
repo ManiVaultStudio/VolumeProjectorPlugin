@@ -144,7 +144,7 @@ void VolumeRenderer::init()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     // Initialize a cube mesh 
-    const std::array<float, 24> verticesCube{
+    constexpr std::array<float, 24> verticesCube{
         0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f,
         0.0f, 1.0f, 0.0f,
@@ -155,7 +155,7 @@ void VolumeRenderer::init()
         1.0f, 1.0f, 1.0f,
     };
 
-    const std::array<unsigned, 36> indicesCube{
+    constexpr std::array<unsigned, 36> indicesCube{
         0, 6, 4,
         0, 2, 6,
         0, 3, 2,
@@ -170,14 +170,14 @@ void VolumeRenderer::init()
         1, 7, 3
     };
 
-    const std::array<float, 12> verticesQuad{
+    constexpr std::array<float, 12> verticesQuad{
         -1.0f, -1.0f, 0.0f,
         1.0f, -1.0f, 0.0f,
         -1.0f, 1.0f, 0.0f,
         1.0f, 1.0f, 0.0f
     };
 
-    const std::array<unsigned, 6> indicesQuad{
+    constexpr std::array<unsigned, 6> indicesQuad{
         0, 2, 1,
         1, 2, 3
     };
@@ -219,11 +219,9 @@ void VolumeRenderer::init()
 }
 
 
-void VolumeRenderer::resize(QSize renderSize)
+void VolumeRenderer::resize(const QSize renderSize)
 {
-
     _adjustedScreenSize = renderSize * 1.0f;
-
 
     _backfacesTexture.bind();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, _adjustedScreenSize.width(), _adjustedScreenSize.height(), 0, GL_RGB, GL_FLOAT, nullptr);
@@ -275,7 +273,7 @@ void VolumeRenderer::setTfTexture(const mv::Dataset<Images>& tfTexture)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, textureDims.width(), textureDims.height() - 1, 0, GL_RGBA, GL_FLOAT, _tfImage.data());
     _tfTexture.release();
 
-    // In these rendermodes the new dataset will impact the visualization and thus needs to be updated now 
+    // In these render modes the new dataset will impact the visualization and thus needs to be updated now 
     if (_renderMode == RenderMode::MULTIDIMENSIONAL_COMPOSITE_COLOR || _renderMode == RenderMode::NN_MULTIDIMENSIONAL_COMPOSITE || _renderMode == RenderMode::NN_MaterialTransition || _renderMode == RenderMode::Alt_NN_MaterialTransition || _renderMode == RenderMode::Smooth_NN_MaterialTransition)
         updataDataTexture();
 }
@@ -352,11 +350,11 @@ void VolumeRenderer::normalizePositionData(std::vector<float>& positionData)
 
 void VolumeRenderer::updateRenderCubes()
 {
-    mv::Vector3f relativeBlockSize = mv::Vector3f(_renderCubeSize / _volumeSize.x, _renderCubeSize / _volumeSize.y, _renderCubeSize / _volumeSize.z);
+    const mv::Vector3f relativeBlockSize = mv::Vector3f(_renderCubeSize / _volumeSize.x, _renderCubeSize / _volumeSize.y, _renderCubeSize / _volumeSize.z);
 
-    int nx = std::ceil(1.0f / relativeBlockSize.x);
-    int ny = std::ceil(1.0f / relativeBlockSize.y);
-    int nz = std::ceil(1.0f / relativeBlockSize.z);
+    const int nx = std::ceil(1.0f / relativeBlockSize.x);
+    const int ny = std::ceil(1.0f / relativeBlockSize.y);
+    const int nz = std::ceil(1.0f / relativeBlockSize.z);
 
     std::vector<mv::Vector3f> positions;
     std::vector<float> occupancyValues;
@@ -367,8 +365,7 @@ void VolumeRenderer::updateRenderCubes()
         {
             for (int z = 0; z < nz; ++z)
             {
-                mv::Vector3f posIndex = mv::Vector3f(x, y, z);
-                positions.push_back(posIndex);
+                positions.push_back(mv::Vector3f(x, y, z));
             }
         }
     }
@@ -395,10 +392,10 @@ void VolumeRenderer::loadNNVolumeToTexture(mv::Texture3D& targetVolume, std::vec
 
     for (int i = 0; i < pointAmount; i++)
     {
-        int x = positionData[i * 2];
-        int y = positionData[i * 2 + 1];
+        const int x = positionData[i * 2];
+        const int y = positionData[i * 2 + 1];
         if (singleValueTFTexture) { // If we only have a single field, we need to use the same value for all channels
-            int pixelPos = (y * width + x);
+            const int pixelPos = (y * width + x);
 
             textureData[i * 4] = usedTFImage[pixelPos];
             textureData[(i * 4) + 1] = usedTFImage[pixelPos];
@@ -406,7 +403,7 @@ void VolumeRenderer::loadNNVolumeToTexture(mv::Texture3D& targetVolume, std::vec
             textureData[(i * 4) + 3] = usedTFImage[pixelPos];
         }
         else { // If we have multiple fields, we need to use the correct value for each channel
-            int pixelPos = (y * width + x) * 4;
+            const int pixelPos = (y * width + x) * 4;
             textureData[i * 4] = usedTFImage[pixelPos];
             textureData[(i * 4) + 1] = usedTFImage[pixelPos + 1];
             textureData[(i * 4) + 2] = usedTFImage[pixelPos + 2];
@@ -426,7 +423,7 @@ void VolumeRenderer::updataDataTexture()
 
     if (_volumeDataset.isValid()) {
         if (_renderMode == RenderMode::MULTIDIMENSIONAL_COMPOSITE_FULL || _renderMode == RenderMode::MaterialTransition_FULL) {
-            int blockAmount = std::ceil(float(_compositeIndices.size()) / 4.0f) * 4; //Since we always assume textures with 4 dimensions all of which need to be filled
+            const int blockAmount = std::ceil(static_cast<float>(_compositeIndices.size()) / 4.0f) * 4; //Since we always assume textures with 4 dimensions all of which need to be filled
             _textureData = std::vector<float>(blockAmount * _volumeDataset->getNumberOfVoxels());
             _volumeTextureSize = _volumeDataset->getVolumeAtlasData(_compositeIndices, _textureData, scalarDataRange);
             _fullDataMemorySize = sizeof(float) * _textureData.size(); // in bytes
@@ -651,7 +648,7 @@ void VolumeRenderer::setRenderCubeSize(float renderCubeSize)
 
 void VolumeRenderer::updateMatrices()
 {
-    QVector3D cameraPos = _camera.getPosition();
+    const QVector3D cameraPos = _camera.getPosition();
     _cameraPos = mv::Vector3f(cameraPos.x(), cameraPos.y(), cameraPos.z());
 
     // Create the model-view-projection matrix

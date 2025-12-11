@@ -103,11 +103,11 @@ public:
 
     void updataDataTexture();
 
-    mv::Vector3f getVolumeSize() { return _volumeSize; }
-    bool getFullRenderModeInProgress() { return _fullDataModeBatch != -1; }
+    mv::Vector3f getVolumeSize() const { return _volumeSize; }
+    bool getFullRenderModeInProgress() const { return _fullDataModeBatch != -1; }
 
     void init();
-    void resize(QSize renderSize);
+    void resize(const QSize renderSize);
 
     void setDefaultRenderSettings();
 
