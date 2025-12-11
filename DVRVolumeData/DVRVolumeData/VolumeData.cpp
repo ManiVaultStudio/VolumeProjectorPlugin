@@ -68,11 +68,6 @@ Dataset<DatasetImpl> VolumeData::createDataSet(const QString& guid /*= ""*/) con
     return Dataset<DatasetImpl>(new Volumes(getName(), false, guid));
 }
 
-mv::plugin::RawData* VolumeDataFactory::produce()
-{
-    return new VolumeData(this);
-}
-
 // =============================================================================
 // Extra features for the VolumeData plugin that have not been updated for volume data TODO
 // =============================================================================
@@ -82,16 +77,7 @@ VolumeDataFactory::VolumeDataFactory()
 	setIconByName("cube");
 }
 
-QUrl VolumeDataFactory::getReadmeMarkdownUrl() const
+mv::plugin::RawData* VolumeDataFactory::produce()
 {
-#ifdef ON_LEARNING_CENTER_FEATURE_BRANCH
-    return QUrl("");
-#else
-    return QUrl("");
-#endif
-}
-
-QUrl VolumeDataFactory::getRepositoryUrl() const
-{
-    return QUrl("https://github.com/ManiVaultStudio/core");
+    return new VolumeData(this);
 }

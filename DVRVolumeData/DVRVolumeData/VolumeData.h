@@ -101,19 +101,8 @@ class VolumeDataFactory : public mv::plugin::RawDataFactory
                       FILE  "VolumeData.json")
 
 public:
-		VolumeDataFactory();
-
-    /**
-     * Get the read me markdown file URL
-     * @return URL of the read me markdown file
-     */
-    QUrl getReadmeMarkdownUrl() const override;
-
-    /**
-     * Get the URL of the GitHub repository
-     * @return URL of the GitHub repository
-     */
-    QUrl getRepositoryUrl() const override;
+	VolumeDataFactory();
+    ~VolumeDataFactory() override {}
 
     mv::plugin::RawData* produce() override;
 };
