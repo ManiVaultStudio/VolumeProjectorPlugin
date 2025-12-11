@@ -38,14 +38,6 @@ namespace
 
         return bounds;
     }
-
-    void translateBounds(Bounds& b, float x, float y)
-    {
-        b.setLeft(b.getLeft() + x);
-        b.setRight(b.getRight() + x);
-        b.setBottom(b.getBottom() + y);
-        b.setTop(b.getTop() + y);
-    }
 }
 
 
@@ -368,14 +360,6 @@ void TransferFunctionWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
-#ifdef SCATTER_PLOT_WIDGET_VERBOSE
-    qDebug() << "Initializing transferFunction widget with context: " << context();
-
-    std::string versionString = std::string((const char*) glGetString(GL_VERSION));
-
-    qDebug() << versionString.c_str();
-#endif
-
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &TransferFunctionWidget::cleanup);
 
     // Initialize renderers
@@ -658,12 +642,7 @@ void TransferFunctionWidget::cleanup()
 void TransferFunctionWidget::updatePixelRatio()
 {
     float pixelRatio = devicePixelRatio();
-    
-#ifdef SCATTER_PLOT_WIDGET_VERBOSE
-    qDebug() << "Window moved to screen " << window()->screen() << ".";
-    qDebug() << "Pixelratio before was " << _pixelRatio << ". New pixelratio is: " << pixelRatio << ".";
-#endif // SCATTER_PLOT_WIDGET_VERBOSE
-    
+
     // we only update if the ratio actually changed
     if( _pixelRatio != pixelRatio )
     {
