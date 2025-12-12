@@ -2,18 +2,18 @@
 
 #include <ViewPlugin.h>
 #include <Dataset.h>
-#include <widgets/DropWidget.h>
-#include <PointData/PointData.h>
-#include <VolumeData/VolumeData.h>
-#include <ImageData/ImageData.h>
 
 #include <actions/PluginStatusBarAction.h>
+#include <widgets/DropWidget.h>
+#include <PointData/PointData.h>
+#include <ImageData/ImageData.h>
+#include <ImageData/Images.h>
 
 #include "SettingsAction.h"
 
 #include <QWidget>
-#include <VolumeData/Volumes.h>
-#include <ImageData/Images.h>
+#include <DVRVolumeData/VolumeData.h>
+#include <DVRVolumeData/Volumes.h>
 
 /** All plugin related classes are in the ManiVault plugin namespace */
 using namespace mv::plugin;
@@ -107,14 +107,8 @@ public:
     /** Default constructor */
     DVRViewPluginFactory();
 
-    /** Destructor */
-    ~DVRViewPluginFactory() override {}
-
     /** Perform post-construction initialization */
     void initialize() override;
-
-    /** Get plugin icon */
-    QIcon getIcon(const QColor& color = Qt::black) const override;
 
     /** Creates an instance of the DVR view plugin */
     ViewPlugin* produce() override;

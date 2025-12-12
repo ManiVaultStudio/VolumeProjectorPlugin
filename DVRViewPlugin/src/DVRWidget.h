@@ -1,19 +1,15 @@
 #pragma once
 
-#include <renderers/PointRenderer.h>
 #include "VolumeRenderer.h"
 #include "TrackballCamera.h"
-#include <graphics/Vector2f.h>
-#include <graphics/Vector3f.h>
-#include <graphics/Bounds.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 
-#include <QColor>
-#include <VolumeData/Volumes.h>
-#include <ImageData/Images.h>
+#include <DVRVolumeData/Volumes.h>
 
+#include <ImageData/Images.h>
+#include <graphics/Vector3f.h>
 
 using namespace mv;
 using namespace mv::gui;

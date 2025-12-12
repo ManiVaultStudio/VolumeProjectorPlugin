@@ -1,34 +1,18 @@
-cmake_minimum_required(VERSION 3.17)
-
-option(MV_UNITY_BUILD "Combine target source files into batches for faster compilation" OFF)
+cmake_minimum_required(VERSION 3.23)
 
 # -----------------------------------------------------------------------------
 # TransferFunction Plugin
 # -----------------------------------------------------------------------------
-set(PROJECT "DVRTransferFunction")
-PROJECT(${PROJECT})
-
-# -----------------------------------------------------------------------------
-# CMake Options
-# -----------------------------------------------------------------------------
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOMOC ON)
-
-if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /DWIN32 /EHsc /MP /permissive- /Zc:__cplusplus")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCMT")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-endif(MSVC)
+set(DVRTRANSFERFUNCTION "DVRTransferFunction")
+PROJECT("DVRTransferFunction"
+        LANGUAGES CXX
+)
 
 # -----------------------------------------------------------------------------
 # Dependencies
 # -----------------------------------------------------------------------------
 find_package(Qt6 COMPONENTS Widgets WebEngineWidgets OpenGL OpenGLWidgets REQUIRED)
-
-find_package(ManiVault COMPONENTS Core PointData ImageData CONFIG)
+find_package(ManiVault COMPONENTS Core PointData ImageData CONFIG QUIET)
 
 # -----------------------------------------------------------------------------
 # Source files
@@ -36,10 +20,6 @@ find_package(ManiVault COMPONENTS Core PointData ImageData CONFIG)
 set(PLUGIN
     src/TransferFunctionPlugin.h
     src/TransferFunctionPlugin.cpp
-)
-
-set(PLUGIN_MOC_HEADERS
-    src/TransferFunctionPlugin.h
 )
 
 set(UI
@@ -97,59 +77,54 @@ source_group(Aux FILES ${AUX})
 # -----------------------------------------------------------------------------
 # CMake Target
 # -----------------------------------------------------------------------------
-add_library(${PROJECT} SHARED ${SOURCES} ${RESOURCES} ${RESOURCE_FILES} ${AUX})
+add_library(${DVRTRANSFERFUNCTION} SHARED ${SOURCES} ${RESOURCES} ${RESOURCE_FILES} ${AUX})
 
 # -----------------------------------------------------------------------------
 # Target include directories
 # -----------------------------------------------------------------------------
-target_include_directories(${PROJECT} PRIVATE "${ManiVault_INCLUDE_DIR}")
+target_include_directories(${DVRTRANSFERFUNCTION} PRIVATE "${ManiVault_INCLUDE_DIR}")
 
 # -----------------------------------------------------------------------------
 # Target properties
 # -----------------------------------------------------------------------------
-target_compile_features(${PROJECT} PRIVATE cxx_std_17)
+target_compile_features(${DVRTRANSFERFUNCTION} PRIVATE cxx_std_20)
 
 if(MV_UNITY_BUILD)
-    set_target_properties(${PROJECT} PROPERTIES UNITY_BUILD ON)
+    set_target_properties(${DVRTRANSFERFUNCTION} PROPERTIES UNITY_BUILD ON)
 endif()
 
 # -----------------------------------------------------------------------------
 # Target library linking
 # -----------------------------------------------------------------------------
-target_link_libraries(${PROJECT} PRIVATE Qt6::Widgets)
-target_link_libraries(${PROJECT} PRIVATE Qt6::WebEngineWidgets)
-target_link_libraries(${PROJECT} PRIVATE Qt6::OpenGL)
-target_link_libraries(${PROJECT} PRIVATE Qt6::OpenGLWidgets)
+target_link_libraries(${DVRTRANSFERFUNCTION} PRIVATE Qt6::Widgets)
+target_link_libraries(${DVRTRANSFERFUNCTION} PRIVATE Qt6::WebEngineWidgets)
+target_link_libraries(${DVRTRANSFERFUNCTION} PRIVATE Qt6::OpenGL)
+target_link_libraries(${DVRTRANSFERFUNCTION} PRIVATE Qt6::OpenGLWidgets)
 
-target_link_libraries(${PROJECT} PRIVATE ManiVault::Core)
-target_link_libraries(${PROJECT} PRIVATE ManiVault::PointData)
-target_link_libraries(${PROJECT} PRIVATE ManiVault::ImageData)
+target_link_libraries(${DVRTRANSFERFUNCTION} PRIVATE ManiVault::Core)
+target_link_libraries(${DVRTRANSFERFUNCTION} PRIVATE ManiVault::PointData)
+target_link_libraries(${DVRTRANSFERFUNCTION} PRIVATE ManiVault::ImageData)
 
 # -----------------------------------------------------------------------------
 # Target installation
 # -----------------------------------------------------------------------------
-install(TARGETS ${PROJECT}
+install(TARGETS ${DVRTRANSFERFUNCTION}
     RUNTIME DESTINATION Plugins COMPONENT PLUGINS # Windows .dll
     LIBRARY DESTINATION Plugins COMPONENT PLUGINS # Linux/Mac .so
 )
 
-add_custom_command(TARGET ${PROJECT} POST_BUILD
+add_custom_command(TARGET ${DVRTRANSFERFUNCTION} POST_BUILD
     COMMAND "${CMAKE_COMMAND}"
         --install ${CMAKE_CURRENT_BINARY_DIR}
         --config $<CONFIGURATION>
         --prefix ${ManiVault_INSTALL_DIR}/$<CONFIGURATION>
 )
 
-set_target_properties(${PROJECT}
-    PROPERTIES
-    FOLDER ViewPlugins
-)
-
 # -----------------------------------------------------------------------------
 # Miscellaneous
 # -----------------------------------------------------------------------------
 # Automatically set the debug environment (command + working directory) for MSVC
-if(MSVC)
-	set_property(TARGET ${PROJECT} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<IF:$<CONFIG:DEBUG>,${ManiVault_INSTALL_DIR}/debug,${ManiVault_INSTALL_DIR}/release>)
-    set_property(TARGET ${PROJECT} PROPERTY VS_DEBUGGER_COMMAND $<IF:$<CONFIG:DEBUG>,"${ManiVault_INSTALL_DIR}/debug/ManiVault Studio.exe","${ManiVault_INSTALL_DIR}/release/ManiVault Studio.exe">)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set_property(TARGET ${DVRTRANSFERFUNCTION} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<IF:$<CONFIG:DEBUG>,${ManiVault_INSTALL_DIR}/Debug,$<IF:$<CONFIG:RELWITHDEBINFO>,${ManiVault_INSTALL_DIR}/RelWithDebInfo,${ManiVault_INSTALL_DIR}/Release>>)
+    set_property(TARGET ${DVRTRANSFERFUNCTION} PROPERTY VS_DEBUGGER_COMMAND $<IF:$<CONFIG:DEBUG>,"${ManiVault_INSTALL_DIR}/Debug/ManiVault Studio.exe",$<IF:$<CONFIG:RELWITHDEBINFO>,"${ManiVault_INSTALL_DIR}/RelWithDebInfo/ManiVault Studio.exe","${ManiVault_INSTALL_DIR}/Release/ManiVault Studio.exe">>)
 endif()

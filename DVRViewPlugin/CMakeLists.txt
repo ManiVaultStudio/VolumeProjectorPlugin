@@ -1,26 +1,14 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.22)
 
-option(MV_UNITY_BUILD "Combine target source files into batches for faster compilation" OFF)
-option(USE_FAISS "Enable Faiss library integration" OFF)  # Add this line
+option(MV_DRV_USE_FAISS "Enable Faiss library integration" OFF)  # Add this line
 
 # -----------------------------------------------------------------------------
 # DVRView Plugin
 # -----------------------------------------------------------------------------
-project("DVRViewPlugin")
-
-# -----------------------------------------------------------------------------
-# CMake Options
-# -----------------------------------------------------------------------------
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
-
-if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DWIN32 /EHsc /MP /permissive- /Zc:__cplusplus")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCMT")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-endif(MSVC)
+set(DVRVIEWPLUGIN "DVRViewPlugin")
+project("${DVRVIEWPLUGIN}"
+        LANGUAGES CXX
+)
 
 # -----------------------------------------------------------------------------
 # Dependencies
@@ -39,7 +27,7 @@ endif()
 # -----------------------------------------------------------------------------
 # Conda Faiss Integration
 # -----------------------------------------------------------------------------
-if(USE_FAISS)
+if(MV_DRV_USE_FAISS)
     # Set the path to your Faiss library.
     set(FAISS_DIR "" CACHE PATH "Path to your folder containing the Faiss include and library folders")
     if(FAISS_DIR STREQUAL "")
@@ -56,24 +44,24 @@ if(USE_FAISS)
 
     message(STATUS "Using Faiss include directory: ${FAISS_INCLUDE_DIR}")
     message(STATUS "Using Faiss library directory: ${FAISS_LIBRARY_DIR}")
-
-    include_directories(${FAISS_INCLUDE_DIR})
-    link_directories(${FAISS_LIBRARY_DIR})
 endif()
 
 # -----------------------------------------------------------------------------
 # hnswlib Integration
 # -----------------------------------------------------------------------------
-# Set the path to your hnswlib installation directory containing the header files.
-set(HNSWLIB_DIR "" CACHE PATH "Path to your hnswlib installation directory containing hnswlib headers")
-if(HNSWLIB_DIR STREQUAL "")
-    message(FATAL_ERROR "HNSWLIB_DIR is not set. Please set it to your hnswlib installation directory.")
+find_package(hnswlib CONFIG QUIET)
+if(NOT hnswlib_FOUND AND NOT TARGET hnswlib::hnswlib)
+    include(FetchContent)
+    FetchContent_Declare(
+      hnswlib 
+      GIT_REPOSITORY https://github.com/nmslib/hnswlib
+      GIT_TAG v0.8.0
+    )
+    FetchContent_MakeAvailable(hnswlib)
+else()
+    message(STATUS "DVRViewPlugin: Using external hnswlib")
 endif()
-
-message(STATUS "Using hnswlib directory: ${HNSWLIB_DIR}")
-
-include_directories(${HNSWLIB_DIR})
-
+    
 # -----------------------------------------------------------------------------
 # Source Files
 # -----------------------------------------------------------------------------
@@ -122,75 +110,68 @@ source_group( Resources FILES ${RESOURCES})
 # -----------------------------------------------------------------------------
 # CMake Target
 # -----------------------------------------------------------------------------
-# Create dynamic library for the plugin
-add_library(${PROJECT_NAME} SHARED ${SOURCES} ${RESOURCES} ${RESOURCE_FILES} ${JSON})
-
-if(USE_FAISS)
-  message(STATUS "Compiling with -DUSE_FAISS")
-  target_compile_definitions(
-    ${PROJECT_NAME}
-    PRIVATE
-      USE_FAISS
-  )
-endif()
-
+add_library(${DVRVIEWPLUGIN} SHARED ${SOURCES} ${RESOURCES} ${RESOURCE_FILES} ${JSON})
 
 # -----------------------------------------------------------------------------
 # Target Include Directories
 # -----------------------------------------------------------------------------
-# Include ManiVault headers, including system data plugins
-target_include_directories(${PROJECT_NAME} PRIVATE "${ManiVault_INCLUDE_DIR}")
+target_include_directories(${DVRVIEWPLUGIN} PRIVATE "${ManiVault_INCLUDE_DIR}")
+target_include_directories(${DVRVIEWPLUGIN} PRIVATE "${DVRVolumeData_INCLUDE_DIR}")
 
 # -----------------------------------------------------------------------------
 # Target Properties
 # -----------------------------------------------------------------------------
-# Request C++17
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+target_compile_features(${DVRVIEWPLUGIN} PRIVATE cxx_std_20)
 
 # Enable unity build
 if(MV_UNITY_BUILD)
-    set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
+    set_target_properties(${DVRVIEWPLUGIN} PROPERTIES UNITY_BUILD ON)
+endif()
+
+if(MV_DRV_USE_FAISS)
+  message(STATUS "Compiling with -DUSE_FAISS")
+  target_compile_definitions(
+    ${DVRVIEWPLUGIN}
+    PRIVATE
+      USE_FAISS
+  )
 endif()
 
 # -----------------------------------------------------------------------------
 # Target Library Linking
 # -----------------------------------------------------------------------------
 # Link to Qt libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::WebEngineWidgets)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::OpenGL)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::OpenGLWidgets)
+target_link_libraries(${DVRVIEWPLUGIN} PRIVATE Qt6::Widgets)
+target_link_libraries(${DVRVIEWPLUGIN} PRIVATE Qt6::WebEngineWidgets)
+target_link_libraries(${DVRVIEWPLUGIN} PRIVATE Qt6::OpenGL)
+target_link_libraries(${DVRVIEWPLUGIN} PRIVATE Qt6::OpenGLWidgets)
 
 # Link to ManiVault and data plugins
-target_link_libraries(${PROJECT_NAME} PRIVATE ManiVault::Core)
-target_link_libraries(${PROJECT_NAME} PRIVATE ManiVault::PointData)
-target_link_libraries(${PROJECT_NAME} PRIVATE ManiVault::ImageData)
-target_link_libraries(${PROJECT_NAME} PRIVATE ManiVault::VolumeData)
+target_link_libraries(${DVRVIEWPLUGIN} PRIVATE ManiVault::Core)
+target_link_libraries(${DVRVIEWPLUGIN} PRIVATE ManiVault::PointData)
+target_link_libraries(${DVRVIEWPLUGIN} PRIVATE ManiVault::ImageData)
+target_link_libraries(${DVRVIEWPLUGIN} PRIVATE ManiVault::DVRVolumeData)
 
-# --- Link OpenMP ---
+target_link_libraries(${DVRVIEWPLUGIN} PRIVATE hnswlib::hnswlib)
+
 if(OpenMP_CXX_FOUND)
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+    target_link_libraries(${DVRVIEWPLUGIN} PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
-# Link the precompiled Faiss library from Conda.
-if(USE_FAISS)
-    target_link_libraries(${PROJECT_NAME} PRIVATE faiss)
+if(MV_DRV_USE_FAISS)
+    target_link_libraries(${DVRVIEWPLUGIN} PRIVATE faiss)
 endif()
-
-# If you have a precompiled hnswlib library, link it here.
-# For header-only integration, this may not be necessary.
-# target_link_libraries(${PROJECT_NAME} PRIVATE hnswlib)
 
 # -----------------------------------------------------------------------------
 # Target Installation
 # -----------------------------------------------------------------------------
 # Install the shared plugin library to the "Plugins" folder in the ManiVault install directory
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${DVRVIEWPLUGIN}
     RUNTIME DESTINATION Plugins COMPONENT PLUGINS # Windows .dll
     LIBRARY DESTINATION Plugins COMPONENT PLUGINS # Linux/Mac .so
 )
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+add_custom_command(TARGET ${DVRVIEWPLUGIN} POST_BUILD
     COMMAND "${CMAKE_COMMAND}"
         --install ${CMAKE_CURRENT_BINARY_DIR}
         --config $<CONFIGURATION>
@@ -201,7 +182,8 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 # Miscellaneous
 # -----------------------------------------------------------------------------
 # Automatically set the debug environment (command + working directory) for MSVC
-if(MSVC)
-    set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<IF:$<CONFIG:DEBUG>,${ManiVault_INSTALL_DIR}/debug,${ManiVault_INSTALL_DIR}/release>)
-    set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_COMMAND $<IF:$<CONFIG:DEBUG>,${ManiVault_INSTALL_DIR}/debug/ManiVault\ Studio.exe,${ManiVault_INSTALL_DIR}/release/ManiVault\ Studio.exe>)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set_property(TARGET ${DVRVIEWPLUGIN} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<IF:$<CONFIG:DEBUG>,${ManiVault_INSTALL_DIR}/Debug,$<IF:$<CONFIG:RELWITHDEBINFO>,${ManiVault_INSTALL_DIR}/RelWithDebInfo,${ManiVault_INSTALL_DIR}/Release>>)
+    set_property(TARGET ${DVRVIEWPLUGIN} PROPERTY VS_DEBUGGER_COMMAND $<IF:$<CONFIG:DEBUG>,"${ManiVault_INSTALL_DIR}/Debug/ManiVault Studio.exe",$<IF:$<CONFIG:RELWITHDEBINFO>,"${ManiVault_INSTALL_DIR}/RelWithDebInfo/ManiVault Studio.exe","${ManiVault_INSTALL_DIR}/Release/ManiVault Studio.exe">>)
+
 endif()

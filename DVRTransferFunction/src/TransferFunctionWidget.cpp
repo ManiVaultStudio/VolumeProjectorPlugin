@@ -38,20 +38,12 @@ namespace
 
         return bounds;
     }
-
-    void translateBounds(Bounds& b, float x, float y)
-    {
-        b.setLeft(b.getLeft() + x);
-        b.setRight(b.getRight() + x);
-        b.setBottom(b.getBottom() + y);
-        b.setTop(b.getTop() + y);
-    }
 }
 
 
 TransferFunctionWidget::TransferFunctionWidget() :
     QOpenGLWidget(),
-    _pointRenderer(),
+    _pointRenderer(this),
     _isInitialized(false),
     _backgroundColor(255, 255, 255, 255),
     _widgetSizeInfo(),
@@ -82,14 +74,14 @@ TransferFunctionWidget::TransferFunctionWidget() :
 
     connect(&_pixelSelectionTool, &PixelSelectionTool::ended, [this]() {
         if (isInitialized() && _pixelSelectionTool.isEnabled() && _areaSelectionBounds.isValid() && _createShape) {
-            QRectF relativeRect(
-                float(_areaSelectionBounds.left() - _boundsPointsWindow.left()) / _boundsPointsWindow.width(),
-                float(_areaSelectionBounds.top() - _boundsPointsWindow.top()) / _boundsPointsWindow.height(),
-                float(_areaSelectionBounds.width()) / _boundsPointsWindow.width(),
-                float(_areaSelectionBounds.height()) / _boundsPointsWindow.height()
+            const QRectF relativeRect(
+                static_cast<float>(_areaSelectionBounds.left() - _boundsPointsWindow.left()) / _boundsPointsWindow.width(),
+                static_cast<float>(_areaSelectionBounds.top() - _boundsPointsWindow.top()) / _boundsPointsWindow.height(),
+                static_cast<float>(_areaSelectionBounds.width()) / _boundsPointsWindow.width(),
+                static_cast<float>(_areaSelectionBounds.height()) / _boundsPointsWindow.height()
             );
-            int borderWidth = 2;
-            QRectF adjustedBounds = _areaSelectionBounds.adjusted(borderWidth, borderWidth, -borderWidth, -borderWidth); // The areapixmap doesn't contain the borders
+            const int borderWidth = 2;
+            const QRectF adjustedBounds = _areaSelectionBounds.adjusted(borderWidth, borderWidth, -borderWidth, -borderWidth); // The areapixmap doesn't contain the borders
             QColor areaColor = _pixelSelectionTool.getMainColor();
 			areaColor.setAlpha(50); // This is the default modification of the areaColor compared to the mainColor which we can not reach but we simulate here
 
@@ -140,6 +132,9 @@ TransferFunctionWidget::TransferFunctionWidget() :
 
         QObject::connect(winHandle, &QWindow::screenChanged, this, &TransferFunctionWidget::updatePixelRatio, Qt::UniqueConnection);
     });
+
+    connect(&_pointRenderer.getNavigator(), &Navigator2D::zoomRectangleWorldChanged, this, [this]() -> void { update(); });
+    _pointRenderer.getNavigator().setEnabled(true);
 }
 
 bool TransferFunctionWidget::event(QEvent* event)
@@ -273,18 +268,21 @@ PixelSelectionTool& TransferFunctionWidget::getPixelSelectionTool()
 // by reference then we can upload the data to the GPU, but not store it in the widget.
 void TransferFunctionWidget::setData(const std::vector<Vector2f>* points)
 {
-    auto dataBounds = getDataBounds(*points);
+    const auto dataBounds = getDataBounds(*points);
 
     // pass un-adjusted data bounds to renderer for 2D colormapping
-    _pointRenderer.setBounds(dataBounds);
+    const auto dataBoundsRect = QRectF(QPointF(dataBounds.getLeft(), dataBounds.getBottom()), QSizeF(dataBounds.getWidth(), dataBounds.getHeight()));
+    _pointRenderer.setDataBounds(dataBoundsRect);
 
     _dataRectangleAction.setBounds(dataBounds);
-	int w = width();
-	int h = height();
-    int size = w < h ? w : h;
+	const int w = width();
+	const int h = height();
+    const int size = w < h ? w : h;
     _boundsPointsWindow = QRect((w - size) / 2.0f, (h - size) / 2.0f, size, size);
 
     _pointRenderer.setData(*points);
+    _pointRenderer.getNavigator().resetView(true);
+
     update();
 }
 
@@ -367,14 +365,6 @@ void TransferFunctionWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
-#ifdef SCATTER_PLOT_WIDGET_VERBOSE
-    qDebug() << "Initializing transferFunction widget with context: " << context();
-
-    std::string versionString = std::string((const char*) glGetString(GL_VERSION));
-
-    qDebug() << versionString.c_str();
-#endif
-
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &TransferFunctionWidget::cleanup);
 
     // Initialize renderers
@@ -427,30 +417,6 @@ void TransferFunctionWidget::createDatasets()
 
 void TransferFunctionWidget::resizeGL(int w, int h)
 {
-    _widgetSizeInfo.width       = static_cast<float>(w);
-    _widgetSizeInfo.height      = static_cast<float>(h);
-    _widgetSizeInfo.minWH       = _widgetSizeInfo.width < _widgetSizeInfo.height ? _widgetSizeInfo.width : _widgetSizeInfo.height;
-    _widgetSizeInfo.ratioWidth  = _widgetSizeInfo.width / _widgetSizeInfo.minWH;
-    _widgetSizeInfo.ratioHeight = _widgetSizeInfo.height / _widgetSizeInfo.minWH;
-
-	_boundsPointsWindow = QRect((w - _widgetSizeInfo.minWH) / 2.0f, (h - _widgetSizeInfo.minWH) / 2.0f, _widgetSizeInfo.minWH, _widgetSizeInfo.minWH);
-	qDebug() << "Bounds of the points in the window: " << _boundsPointsWindow;
-
-    // Update the bounds for all interactive shapes
-    for (auto& shape : _interactiveShapes) {
-        shape.setBounds(_boundsPointsWindow);
-    }
-
-
-    // we need this here as we do not have the screen yet to get the actual devicePixelRatio when the view is created
-    _pixelRatio = devicePixelRatio();
-
-    // Pixel ratio tells us how many pixels map to a point
-    // That is needed as macOS calculates in points and we do in pixels
-    // On macOS high dpi displays pixel ration is 2
-    w *= _pixelRatio;
-    h *= _pixelRatio;
-
     _pointRenderer.resize(QSize(w, h));
 }
 
@@ -657,12 +623,7 @@ void TransferFunctionWidget::cleanup()
 void TransferFunctionWidget::updatePixelRatio()
 {
     float pixelRatio = devicePixelRatio();
-    
-#ifdef SCATTER_PLOT_WIDGET_VERBOSE
-    qDebug() << "Window moved to screen " << window()->screen() << ".";
-    qDebug() << "Pixelratio before was " << _pixelRatio << ". New pixelratio is: " << pixelRatio << ".";
-#endif // SCATTER_PLOT_WIDGET_VERBOSE
-    
+
     // we only update if the ratio actually changed
     if( _pixelRatio != pixelRatio )
     {

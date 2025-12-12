@@ -105,8 +105,8 @@ GradientPickerAction::Widget::Widget(QWidget* parent, GradientPickerAction* grad
     _gradientTextureIDAction(this, "Texture ID", 0, 1, 0),
     _gradientXOffsetAction(this, "X Offset", -1, 1, 0),
     _gradientYOffsetAction(this, "Y Offset", -1, 1, 0),
-    _gradientWidthAction(this, "Width", 0.1, 5, 0),
-    _gradientHeightAction(this, "Height", 0.1, 5, 0),
+    _gradientWidthAction(this, "Width", 0.1f, 5, 0),
+    _gradientHeightAction(this, "Height", 0.1f, 5, 0),
     _gradientRotationAction(this, "Rotation", 0, 90, 0),
     _gradientImageLabel(new QLabel(this)),
     _updateElements(true)

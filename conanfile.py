@@ -1,11 +1,12 @@
 from conans import ConanFile
 from conan.tools.cmake import CMakeDeps, CMake, CMakeToolchain
 from conans.tools import save, load
+from conans.tools import os_info, SystemPackageTool
 import os
 import pathlib
 import subprocess
 from rules_support import PluginBranchInfo
-
+from conans import tools
 
 class DRVPluginsConan(ConanFile):
     """Class to package DRVPlugins using conan
@@ -18,10 +19,10 @@ class DRVPluginsConan(ConanFile):
 
     name = "DRVPlugins"
     description = (
-        "A collection of examples including analys, data, loader and view plugins."
+        "A collection of examples including analysis, data, loader and view plugins."
     )
-    topics = ("hdps", "plugin", "examples", "various")
-    url = "https://github.com/ManiVaultStudio"
+    topics = ("manivault", "plugin", "volume rendering", "transfer function")
+    url = "https://github.com/ManiVaultStudio/VolumeProjectorPlugin"
     author = "B. van Lew b.van_lew@lumc.nl"  # conan recipe author
     license = "MIT"
 
@@ -70,9 +71,14 @@ class DRVPluginsConan(ConanFile):
         pass
 
     def system_requirements(self):
-        #  May be needed for macOS or Linux
-        pass
-
+        if os_info.is_macos:
+            installer = SystemPackageTool()
+            installer.install("libomp")
+            proc = subprocess.run("brew --prefix libomp",  shell=True, capture_output=True)
+            subprocess.run(f"ln {proc.stdout.decode('UTF-8').strip()}/lib/libomp.dylib /usr/local/lib/libomp.dylib", shell=True)
+        if os_info.is_linux:
+            self.run("sudo apt update && sudo apt install -y libtbb-dev")
+    
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -109,29 +115,10 @@ class DRVPluginsConan(ConanFile):
         # Set some build options
         tc.variables["MV_UNITY_BUILD"] = "ON"
 
-        # Use vcpkg-installed dependencies if there are any
-        if os.environ.get("VCPKG_ROOT", None):
-            vcpkg_dir = pathlib.Path(os.environ["VCPKG_ROOT"])
-            vcpkg_exe = vcpkg_dir / "vcpkg.exe" if self.settings.os == "Windows" else vcpkg_dir / "vcpkg" 
-            vcpkg_tc  = vcpkg_dir / "scripts" / "buildsystems" / "vcpkg.cmake"
-
-            vcpkg_triplet = "x64-windows"
-            if self.settings.os == "Macos":
-                vcpkg_triplet = "x64-osx"
-            if self.settings.os == "Linux":
-                vcpkg_triplet = "x64-linux"
-
-            print("vcpkg_dir: ", vcpkg_dir)
-            print("vcpkg_exe: ", vcpkg_exe)
-            print("vcpkg_tc: ", vcpkg_tc)
-            print("vcpkg_triplet: ", vcpkg_triplet)
-
-            tc.variables["VCPKG_LIBRARY_LINKAGE"]   = "dynamic"
-            tc.variables["VCPKG_TARGET_TRIPLET"]    = vcpkg_triplet
-            tc.variables["VCPKG_HOST_TRIPLET"]      = vcpkg_triplet
-            tc.variables["VCPKG_ROOT"]              = vcpkg_dir.as_posix()
-
-            tc.variables["CMAKE_PROJECT_INCLUDE"] = vcpkg_tc.as_posix()
+        if os_info.is_macos:
+            proc = subprocess.run("brew --prefix libomp", shell=True, capture_output=True)
+            prefix_path = f"{proc.stdout.decode('UTF-8').strip()}"
+            tc.variables["OpenMP_ROOT"] = prefix_path
 
         tc.generate()
 
@@ -145,12 +132,12 @@ class DRVPluginsConan(ConanFile):
         print("Build OS is: ", self.settings.os)
 
         cmake = self._configure_cmake()
-        cmake.build(build_type="Debug")
+        cmake.build(build_type="RelWithDebInfo")
         cmake.build(build_type="Release")
 
     def package(self):
         package_dir = pathlib.Path(self.build_folder, "package")
-        debug_dir = package_dir / "Debug"
+        relWithDebInfo_dir = package_dir / "RelWithDebInfo"
         release_dir = package_dir / "Release"
         print("Packaging install dir: ", package_dir)
         subprocess.run(
@@ -159,9 +146,9 @@ class DRVPluginsConan(ConanFile):
                 "--install",
                 self.build_folder,
                 "--config",
-                "Debug",
+                "RelWithDebInfo",
                 "--prefix",
-                debug_dir,
+                relWithDebInfo_dir,
             ]
         )
         subprocess.run(
@@ -174,13 +161,13 @@ class DRVPluginsConan(ConanFile):
                 "--prefix",
                 release_dir,
             ]
-        )
+        )   
         self.copy(pattern="*", src=package_dir)
 
     def package_info(self):
-        self.cpp_info.debug.libdirs = ["Debug/lib"]
-        self.cpp_info.debug.bindirs = ["Debug/Plugins", "Debug"]
-        self.cpp_info.debug.includedirs = ["Debug/include", "Debug"]
+        self.cpp_info.relwithdebinfo.libdirs = ["RelWithDebInfo/lib"]
+        self.cpp_info.relwithdebinfo.bindirs = ["RelWithDebInfo/Plugins", "RelWithDebInfo"]
+        self.cpp_info.relwithdebinfo.includedirs = ["RelWithDebInfo/include", "RelWithDebInfo"]
         self.cpp_info.release.libdirs = ["Release/lib"]
         self.cpp_info.release.bindirs = ["Release/Plugins", "Release"]
         self.cpp_info.release.includedirs = ["Release/include", "Release"]

@@ -61,7 +61,7 @@ public:
     /**
      * Feed 2-dimensional data to the transferFunction.
      */
-    void setData(const std::vector<mv::Vector2f>* data);
+    void setData(const std::vector<mv::Vector2f>* points);
     void setHighlights(const std::vector<char>& highlights, const std::int32_t& numSelectedPoints);
 
     /**
@@ -114,6 +114,14 @@ public: // Selection
      * @return Boolean determining whether the z-order of each point is to be randomized or not
      */
     bool getRandomizedDepthEnabled() const;
+
+public: // Navigators
+
+    /**
+     * Get the navigator for the point renderer
+     * @return Reference to the navigator
+     */
+    mv::Navigator2D& getPointRendererNavigator() { return _pointRenderer.getNavigator(); }
 
 protected:
     void initializeGL()         Q_DECL_OVERRIDE;

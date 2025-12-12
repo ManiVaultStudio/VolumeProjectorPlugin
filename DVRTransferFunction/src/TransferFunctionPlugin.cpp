@@ -6,6 +6,7 @@
 #include <DataHierarchyItem.h>
 
 #include <util/PixelSelectionTool.h>
+#include <util/StyledIcon.h>
 #include <util/Timer.h>
 
 #include <ClusterData/ClusterData.h>
@@ -137,7 +138,7 @@ TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
 
     auto& selectionAction = _settingsAction.getSelectionAction();
 
-    getSamplerAction().setViewGeneratorFunction([this](const ViewPluginSamplerAction::SampleContext& toolTipContext) -> QString {
+    getSamplerAction().setHtmlViewGeneratorFunction([this](const ViewPluginSamplerAction::SampleContext& toolTipContext) -> QString {
         QStringList localPointIndices, globalPointIndices;
 
         for (const auto& localPointIndex : toolTipContext["LocalPointIndices"].toList())
@@ -175,6 +176,15 @@ void TransferFunctionPlugin::init()
     layout->setSpacing(0);
     layout->addWidget(_primaryToolbarAction.createWidget(&getWidget()));
     layout->addWidget(_transferFunctionWidget, 100);
+
+    auto& navigationAction = _transferFunctionWidget->getPointRendererNavigator().getNavigationAction();
+
+    if (const auto navigationWidget = navigationAction.createWidget(&getWidget())) {
+        layout->addWidget(navigationWidget);
+        layout->setAlignment(navigationWidget, Qt::AlignCenter);
+
+        navigationAction.setParent(&_settingsAction);
+    }
 
     getWidget().setLayout(layout);
 
@@ -218,10 +228,7 @@ void TransferFunctionPlugin::loadData(const Datasets& datasets)
 void TransferFunctionPlugin::createSubset(const bool& fromSourceData /*= false*/, const QString& name /*= ""*/)
 {
     // Create the subset
-    mv::Dataset<DatasetImpl> subset;
-
-    // Avoid making a bigger subset than the current data by restricting the selection to the current data
-    subset = _positionDataset->createSubsetFromVisibleSelection(name, _positionDataset);
+    mv::Dataset<DatasetImpl> subset = _positionDataset->createSubsetFromVisibleSelection(name, _positionDataset);
 
     subset->getDataHierarchyItem().select();
 }
@@ -241,6 +248,8 @@ void TransferFunctionPlugin::positionDatasetChanged()
 
     _numPoints = _positionDataset->getNumPoints();
     
+    _transferFunctionWidget->getPointRendererNavigator().resetView(true);
+
     updateVolumeData();
 }
 
@@ -258,9 +267,11 @@ void TransferFunctionPlugin::updateVolumeData()
     // If no dataset has been selected, don't do anything
     if (_positionDataset.isValid()) {
 
+        // ensure point size and opacity is updated
+        _transferFunctionWidget->setPointOpacity(_settingsAction.getPointsAction().getOpacity());
+        _transferFunctionWidget->setPointSize(_settingsAction.getPointsAction().getSize());
 
-
-        // Determine number of points depending on if its a full dataset or a subset
+    	// Determine number of points depending on if it's a full dataset or a subset
         _numPoints = _positionDataset->getNumPoints();
 
         // Extract 2-dimensional points from the data set based on the selected dimensions
@@ -374,11 +385,7 @@ std::uint32_t TransferFunctionPlugin::getNumberOfPoints() const
 
 TransferFunctionPluginFactory::TransferFunctionPluginFactory()
 {
-}
-
-QIcon TransferFunctionPluginFactory::getIcon(const QColor& color /*= Qt::black*/) const
-{
-    return Application::getIconFont("FontAwesome").getIcon("braille", color);
+    setIconByName("braille");
 }
 
 ViewPlugin* TransferFunctionPluginFactory::produce()
@@ -397,10 +404,9 @@ PluginTriggerActions TransferFunctionPluginFactory::getPluginTriggerActions(cons
     const auto numberOfDatasets = datasets.count();
 
     if (PluginFactory::areAllDatasetsOfTheSameType(datasets, PointType)) {
-        auto& fontAwesome = Application::getIconFont("FontAwesome");
 
         if (numberOfDatasets >= 1) {
-            auto pluginTriggerAction = new PluginTriggerAction(const_cast<TransferFunctionPluginFactory*>(this), this, "TransferFunction", "View selected datasets side-by-side in separate scatter plot viewers", fontAwesome.getIcon("braille"), [this, getInstance, datasets](PluginTriggerAction& pluginTriggerAction) -> void {
+            auto pluginTriggerAction = new PluginTriggerAction(const_cast<TransferFunctionPluginFactory*>(this), this, "TransferFunction", "View selected datasets side-by-side in separate scatter plot viewers", icon(), [this, getInstance, datasets](PluginTriggerAction& pluginTriggerAction) -> void {
                 for (const auto& dataset : datasets)
                     getInstance()->loadData(Datasets({ dataset }));
             });
