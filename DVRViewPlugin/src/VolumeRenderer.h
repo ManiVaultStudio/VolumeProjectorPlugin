@@ -1,13 +1,27 @@
 #pragma once
 
-#include <renderers/Renderer.h>
 #include "TrackballCamera.h"
-#include "graphics/Shader.h"
-#include "graphics/Vector3f.h"
-#include "graphics/Vector2f.h"
-#include "graphics/Framebuffer.h"
-#include "graphics/Texture.h"
-#include <util/FileUtil.h>
+#include "MCArrays.h"
+
+#include <graphics/Shader.h>
+#include <graphics/Vector3f.h>
+#include <graphics/Framebuffer.h>
+#include <graphics/Texture.h>
+
+#include <DVRVolumeData/Volumes.h>
+
+#include <ImageData/Images.h>
+#include <PointData/PointData.h>
+
+#include <vector>
+
+#include <hnswlib/hnswlib.h>
+
+#ifdef USE_FAISS
+#include <faiss/IndexIVFFlat.h>
+#include <faiss/IndexFlat.h>
+#include <faiss/Index.h>
+#endif // USE_FAISS
 
 #include <QMatrix4x4>
 #include <QOpenGLVertexArrayObject>
@@ -15,19 +29,6 @@
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
-#include <vector>
-#include <DVRVolumeData/Volumes.h>
-#include <ImageData/Images.h>
-#include <PointData/PointData.h>
-#include "MCArrays.h"
-
-#include <hnswlib/hnswlib.h>
-#ifdef USE_FAISS
-#include <faiss/IndexIVFFlat.h>
-#include <faiss/IndexFlat.h>
-#include <faiss/Index.h>
-#endif // USE_FAISS
-
 #include <QOpenGLFunctions_4_3_Core>
 
 namespace mv {

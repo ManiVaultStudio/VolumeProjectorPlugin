@@ -2,18 +2,18 @@
 
 #include <ViewPlugin.h>
 #include <Dataset.h>
-#include <widgets/DropWidget.h>
-#include <PointData/PointData.h>
-#include <DVRVolumeData/VolumeData.h>
-#include <ImageData/ImageData.h>
 
 #include <actions/PluginStatusBarAction.h>
+#include <widgets/DropWidget.h>
+#include <PointData/PointData.h>
+#include <ImageData/ImageData.h>
+#include <ImageData/Images.h>
 
 #include "SettingsAction.h"
 
 #include <QWidget>
+#include <DVRVolumeData/VolumeData.h>
 #include <DVRVolumeData/Volumes.h>
-#include <ImageData/Images.h>
 
 /** All plugin related classes are in the ManiVault plugin namespace */
 using namespace mv::plugin;

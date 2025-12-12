@@ -1,7 +1,5 @@
 #include "DVRWidget.h"
 
-#include <util/Exception.h>
-
 #include <QEvent>
 #include <QWindow>
 #include <QMouseEvent>
