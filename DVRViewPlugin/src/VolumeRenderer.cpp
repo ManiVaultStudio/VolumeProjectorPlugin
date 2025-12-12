@@ -101,16 +101,16 @@ void VolumeRenderer::init()
 
     // Initialize the volume shader program
     bool loaded = true;
-    loaded &= _surfaceShader.loadShaderFromFile(":shaders/Surface.vert", ":shaders/Surface.frag");
-    loaded &= _2DCompositeShader.loadShaderFromFile(":shaders/Quad.vert", ":shaders/2DComposite.frag");
-    loaded &= _colorCompositeShader.loadShaderFromFile(":shaders/Quad.vert", ":shaders/ColorComposite.frag");
-    loaded &= _1DMipShader.loadShaderFromFile(":shaders/Quad.vert", ":shaders/1DMip.frag");
-    loaded &= _materialTransition2DShader.loadShaderFromFile(":shaders/Quad.vert", ":shaders/MaterialTransition2D.frag");
-    loaded &= _nnMaterialTransitionShader.loadShaderFromFile(":shaders/Quad.vert", ":shaders/NNMaterialTransition.frag");
-    loaded &= _altNNMaterialTransitionShader.loadShaderFromFile(":shaders/Quad.vert", ":shaders/AltNNMaterialTransition.frag");
-    loaded &= _fullDataCompositeShader.loadShaderFromFile(":shaders/Quad.vert", ":shaders/FullDataCompositeBlending.frag");
-    loaded &= _fullDataMaterialTransitionShader.loadShaderFromFile(":shaders/Quad.vert", ":shaders/FullDataMaterialBlending.frag");
-    loaded &= _textureShader.loadShaderFromFile(":shaders/Quad.vert", ":shaders/Texture.frag");
+    loaded &= _surfaceShader.loadShaderFromFile(":shaders/DVR_Surface.vert", ":shaders/DVR_Surface.frag");
+    loaded &= _2DCompositeShader.loadShaderFromFile(":shaders/DVR_Quad.vert", ":shaders/DVR_2DComposite.frag");
+    loaded &= _colorCompositeShader.loadShaderFromFile(":shaders/DVR_Quad.vert", ":shaders/DVR_ColorComposite.frag");
+    loaded &= _1DMipShader.loadShaderFromFile(":shaders/DVR_Quad.vert", ":shaders/DVR_1DMip.frag");
+    loaded &= _materialTransition2DShader.loadShaderFromFile(":shaders/DVR_Quad.vert", ":shaders/DVR_MaterialTransition2D.frag");
+    loaded &= _nnMaterialTransitionShader.loadShaderFromFile(":shaders/DVR_Quad.vert", ":shaders/DVR_NNMaterialTransition.frag");
+    loaded &= _altNNMaterialTransitionShader.loadShaderFromFile(":shaders/DVR_Quad.vert", ":shaders/DVR_AltNNMaterialTransition.frag");
+    loaded &= _fullDataCompositeShader.loadShaderFromFile(":shaders/DVR_Quad.vert", ":shaders/DVR_FullDataCompositeBlending.frag");
+    loaded &= _fullDataMaterialTransitionShader.loadShaderFromFile(":shaders/DVR_Quad.vert", ":shaders/DVR_FullDataMaterialBlending.frag");
+    loaded &= _textureShader.loadShaderFromFile(":shaders/DVR_Quad.vert", ":shaders/Texture.frag");
 
     if (!loaded) {
         qCritical() << "Failed to load one of the Volume Renderer shaders";
@@ -121,7 +121,7 @@ void VolumeRenderer::init()
 
     // Create the shader program instance.
     _fullDataSamplerComputeShader = new QOpenGLShaderProgram();
-    if (!_fullDataSamplerComputeShader->addShaderFromSourceFile(QOpenGLShader::Compute, ":shaders/FullDataSampling.comp"))
+    if (!_fullDataSamplerComputeShader->addShaderFromSourceFile(QOpenGLShader::Compute, ":shaders/DVR_FullDataSampling.comp"))
     {
         qCritical() << "Failed to load compute shader:" << _fullDataSamplerComputeShader->log();
         return;

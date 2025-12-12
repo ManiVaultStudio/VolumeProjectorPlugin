@@ -1,16 +1,17 @@
 <RCC>
     <qresource prefix="/">
-        <file>shaders/Surface.vert</file>
-        <file>shaders/Surface.frag</file>
-	    <file>shaders/Directions.frag</file>
-		<file>shaders/2DComposite.frag</file>
-	    <file>shaders/ColorComposite.frag</file>
-		<file>shaders/1DMip.frag</file>
-		<file>shaders/MaterialTransition2D.frag</file>
-		<file>shaders/NNMaterialTransition.frag</file>
-		<file>shaders/AltNNMaterialTransition.frag</file>
-		<file>shaders/FullDataSampling.comp</file>
-		<file>shaders/FullDataCompositeBlending.frag</file>
-		<file>shaders/FullDataMaterialBlending.frag</file>
+        <file>shaders/DVR_Surface.vert</file>
+        <file>shaders/DVR_Surface.frag</file>
+	    <file>shaders/DVR_Directions.frag</file>
+		<file>shaders/DVR_2DComposite.frag</file>
+	    <file>shaders/DVR_ColorComposite.frag</file>
+		<file>shaders/DVR_1DMip.frag</file>
+		<file>shaders/DVR_MaterialTransition2D.frag</file>
+		<file>shaders/DVR_NNMaterialTransition.frag</file>
+		<file>shaders/DVR_AltNNMaterialTransition.frag</file>
+		<file>shaders/DVR_FullDataSampling.comp</file>
+		<file>shaders/DVR_FullDataCompositeBlending.frag</file>
+		<file>shaders/DVR_FullDataMaterialBlending.frag</file>
+		<file>shaders/DVR_Quad.vert</file>
     </qresource>
 </RCC>
