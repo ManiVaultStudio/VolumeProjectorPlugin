@@ -98,7 +98,7 @@ class VolumeDataFactory : public mv::plugin::RawDataFactory
     Q_INTERFACES(mv::plugin::RawDataFactory mv::plugin::PluginFactory)
     Q_OBJECT
     Q_PLUGIN_METADATA(IID   "studio.manivault.VolumeData"
-                      FILE  "VolumeData.json")
+                      FILE  "PluginInfo.json")
 
 public:
 	VolumeDataFactory();

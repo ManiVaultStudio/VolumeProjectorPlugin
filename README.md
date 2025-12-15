@@ -1,7 +1,7 @@
 # Neighborhood-Preserving Dimensionality Reduction for Multivariate Volume Rendering
 Plugins for the [ManiVault](https://github.com/ManiVaultStudio/core) framework which let you visualize multivariate volumetric datasets and create user-friendly transfer functions based on dimensionality reduction techniques.
 
-The plugins in this repository were written by Ravi Snellenberg for the Master thesis [Neighborhood-Preserving Dimensionality Reduction for Multivariate Volume Rendering](https://resolver.tudelft.nl/uuid:91d45452-416f-4fda-bfb5-261be169f958) (2025) and the original code is hosted at [github.com/Rsnelllenberg/VolumeProjectorPlugin](https://github.com/Rsnelllenberg/VolumeProjectorPlugin).
+The plugins in this repository were written by Ravi Snellenberg for the Master thesis [Neighborhood-Preserving Dimensionality Reduction for Multivariate Volume Rendering](https://resolver.tudelft.nl/uuid:91d45452-416f-4fda-bfb5-261be169f958) (2025) and additionally published at the [Bio+MedVis Challenge @ IEEE VIS 2025](http://biovis.net/2025/biovisChallenges_vis/) as [t-SNE based Transfer Functions for Multi-attribute Volume Rendering](https://biovis.net/2025/data/BioMedVisChallenge2025submissions/3178/final.pdf) (2025). The original code is hosted at [github.com/Rsnelllenberg/VolumeProjectorPlugin](https://github.com/Rsnelllenberg/VolumeProjectorPlugin).
 
 https://github.com/user-attachments/assets/a50c668d-30e0-4cd2-a6c8-6574041d27f9
 

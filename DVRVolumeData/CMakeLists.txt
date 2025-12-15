@@ -43,7 +43,7 @@ set(ACTIONS_SOURCES
 )
 
 set(AUX 
-    DVRVolumeData/VolumeData.json
+    PluginInfo.json
 )
 
 source_group(Actions FILES ${ACTIONS_SOURCES})

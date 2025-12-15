@@ -60,7 +60,7 @@ set(TEXTURES
 )
 
 set(AUX
-    src/TransferFunctionPlugin.json
+    PluginInfo.json
 )
 
 qt_add_resources(RESOURCE_FILES ${RESOURCES})

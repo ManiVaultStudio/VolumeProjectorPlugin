@@ -17,21 +17,22 @@ find_package(ManiVault COMPONENTS Core PointData CONFIG QUIET)
 # -----------------------------------------------------------------------------
 # Source files
 # -----------------------------------------------------------------------------
-set(SOURCES
+set(PLUGIN_SOURCES
     src/DVRVolumeLoader.h
     src/DVRVolumeLoader.cpp
 )
 
-set(JSON
-    src/DVRVolumeLoader.json
+set(AUX
+    PluginInfo.json
 )
 
-source_group( Plugin FILES ${SOURCES})
+source_group( Plugin FILES ${PLUGIN_SOURCES})
+source_group( Aux FILES ${AUX})
 
 # -----------------------------------------------------------------------------
 # CMake Target
 # -----------------------------------------------------------------------------
-add_library(${DVRVOLUMELOADER} SHARED ${SOURCES} ${JSON})
+add_library(${DVRVOLUMELOADER} SHARED ${PLUGIN_SOURCES} ${AUX})
 
 # -----------------------------------------------------------------------------
 # Target include directories

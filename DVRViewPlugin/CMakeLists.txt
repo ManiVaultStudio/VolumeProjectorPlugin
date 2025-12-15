@@ -70,8 +70,8 @@ set(PLUGIN_SOURCES
     src/DVRViewPlugin.h
     src/DVRViewPlugin.cpp
 )
-set(JSON
-    src/DVRViewPlugin.json
+set(AUX
+    PluginInfo.json
 )
 set(PLUGIN_RENDERERS
     src/VolumeRenderer.h
@@ -106,11 +106,12 @@ source_group( Actions FILES ${PLUGIN_ACTIONS})
 source_group( Renderers FILES ${PLUGIN_RENDERERS})
 source_group( Graphics FILES ${PLUGIN_GRAPHICS})
 source_group( Resources FILES ${RESOURCES})
+source_group( Aux FILES ${AUX})
 
 # -----------------------------------------------------------------------------
 # CMake Target
 # -----------------------------------------------------------------------------
-add_library(${DVRVIEWPLUGIN} SHARED ${SOURCES} ${RESOURCES} ${RESOURCE_FILES} ${JSON})
+add_library(${DVRVIEWPLUGIN} SHARED ${SOURCES} ${RESOURCES} ${RESOURCE_FILES} ${AUX})
 
 # -----------------------------------------------------------------------------
 # Target Include Directories
