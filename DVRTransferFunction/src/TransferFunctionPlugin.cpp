@@ -420,5 +420,5 @@ PluginTriggerActions TransferFunctionPluginFactory::getPluginTriggerActions(cons
 
 QUrl TransferFunctionPluginFactory::getRepositoryUrl() const
 {
-    return QUrl("https://github.com/ManiVaultStudio/TransferFunction");
+    return { "https://github.com/ManiVaultStudio/VolumeProjectorPlugin/" };
 }
