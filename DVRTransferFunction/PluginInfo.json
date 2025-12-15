@@ -1,5 +1,8 @@
 {
   "name": "DVR Transfer Function",
-  "version": "0.1",
+  "version" :  {
+      "plugin" : "1.0.0",
+      "core" : ["1.4"]
+  },
   "dependencies": [ "Points", "Images" ]
 }

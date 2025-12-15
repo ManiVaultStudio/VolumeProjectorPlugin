@@ -173,7 +173,7 @@ class DVRVolumeLoaderFactory : public LoaderPluginFactory
     Q_INTERFACES(mv::plugin::LoaderPluginFactory mv::plugin::PluginFactory)
     Q_OBJECT
     Q_PLUGIN_METADATA(IID   "nl.tudelft.DVRVolumeLoader"
-                      FILE  "DVRVolumeLoader.json")
+                      FILE  "PluginInfo.json")
 
 public:
     DVRVolumeLoaderFactory(void);
