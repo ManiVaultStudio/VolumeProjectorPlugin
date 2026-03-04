@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
 
-option(MV_DRV_USE_FAISS "Enable Faiss library integration" OFF)  # Add this line
-
 # -----------------------------------------------------------------------------
 # DVRView Plugin
 # -----------------------------------------------------------------------------
@@ -28,22 +26,7 @@ endif()
 # Conda Faiss Integration
 # -----------------------------------------------------------------------------
 if(MV_DRV_USE_FAISS)
-    # Set the path to your Faiss library.
-    set(FAISS_DIR "" CACHE PATH "Path to your folder containing the Faiss include and library folders")
-    if(FAISS_DIR STREQUAL "")
-        message(FATAL_ERROR "FAISS_DIR is not set. Please set it to your folder that contains the Faiss include and library folders.")
-    endif()
-
-    if(WIN32)
-        set(FAISS_INCLUDE_DIR "${FAISS_DIR}/Library/include")
-        set(FAISS_LIBRARY_DIR "${FAISS_DIR}/Library/lib")
-    else()
-        set(FAISS_INCLUDE_DIR "${FAISS_DIR}/include")
-        set(FAISS_LIBRARY_DIR "${FAISS_DIR}/lib")
-    endif()
-
-    message(STATUS "Using Faiss include directory: ${FAISS_INCLUDE_DIR}")
-    message(STATUS "Using Faiss library directory: ${FAISS_LIBRARY_DIR}")
+    find_package(faiss CONFIG REQUIRED)
 endif()
 
 # -----------------------------------------------------------------------------

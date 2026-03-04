@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-if(NOT DEFINED MV_DRV_USE_VCPKG)
-    set(MV_DRV_USE_VCPKG OFF)
-elseif(MV_DRV_USE_VCPKG)
-    message(STATUS "DVRPlugins: Using vcpkg to install dependencies")
-endif()
-
+option(MV_DRV_USE_FAISS "Enable Faiss library integration" OFF)
 option(MV_UNITY_BUILD "Combine target source files into batches for faster compilation" OFF)
 
 set(PROJECT "DVRPlugins")

@@ -13,10 +13,10 @@ https://github.com/user-attachments/assets/ce592486-d5a1-4a5e-84f4-011fe753f0fb
 
 ## Build instructions
 - This is a plugin for the [manivault studio framework](https://github.com/ManiVaultStudio). Go to the repository of the framework, and it has extensive explanation about how to build and run plugins for it. 
-- It has an optional dependency for the [Faiss ANN library](github.com/facebookresearch/faiss)
+- It has an optional dependency for the [Faiss ANN library](github.com/facebookresearch/faiss). Set the CMake option `MV_DRV_USE_FAISS` to `ON` and provide a faiss installation. We recommend using [vcpkg](https://github.com/microsoft/vcpkg/) using `CMAKE_TOOLCHAIN_FILE` (`PATH_TO/vcpkg/scripts/buildsystems/vcpkg.cmake`) and the `VCPKG_TARGET_TRIPLET` `x64-windows-static-md`.
 - Before running the program, you might need to adjust some parameters in the DRVViewPlugin/volumeRenderer.h file:
   - _fullGPUMemorySize = Tells the program how much VRAM it can use (mainly important for the full data pipeline mode, apart from some warnings). The default is 2 GB
-  - _hnswIndexFolder = Folder path where it saves/loads the constructed index to/from when using the hnsw ANN library, default: "C:/hnsw_index/"  (TODO make this a CMAKE parameter)
+  - _hnswIndexFolder = Folder path where it saves/loads the constructed index to/from when using the hnsw ANN library, default: "C:/hnsw_index/" (TODO: make this a CMAKE parameter)
   - _hnswM, _hnswEfConstruction, _hwnsEfSearch = Parameters for the ANN algorithm library that is used for the full data pipeline rendermode
   - (only if you use FAISS) _nlist, _nprobe, _useFaissANN = Again, parameters for the FAISS ANN algorithms used in the full data pipeline rendermode
 - You still need to add at least a dimensionality reduction plugin for this plugin to be usable, e.g., [t-SNE](https://github.com/ManiVaultStudio/t-SNE-Analysis) or [UMAP](https://github.com/ManiVaultStudio/UMAP-Plugin)
