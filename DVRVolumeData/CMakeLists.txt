@@ -65,6 +65,8 @@ file(GLOB EXPORT_HEADER_FILE_NAME
     RELATIVE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/*_export.h)
 list(APPEND VOLUME_DATA_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/${EXPORT_HEADER_FILE_NAME})
 
+set_target_properties(${VOLUMEDATA} PROPERTIES PUBLIC_HEADER "${VOLUME_DATA_HEADERS}")
+
 # -----------------------------------------------------------------------------
 # Target include directories
 # -----------------------------------------------------------------------------
@@ -98,10 +100,10 @@ target_link_libraries(${VOLUMEDATA} PRIVATE ManiVault::PointData)
 
 install(TARGETS ${VOLUMEDATA}
     EXPORT "ManiVaultPublicExport"
-    RUNTIME DESTINATION "$<CONFIGURATION>/Plugins/" COMPONENT PLUGINS # Windows .dll
-    LIBRARY DESTINATION "$<CONFIGURATION>/Plugins/" COMPONENT PLUGINS # Linux/Mac .so
-    ARCHIVE DESTINATION "$<CONFIGURATION>/lib/"     COMPONENT LINKLIB # Windows .lib
-    PUBLIC_HEADER DESTINATION "$<CONFIGURATION>/include/${VOLUMEDATA}/" COMPONENT HEADERS
+    RUNTIME DESTINATION Plugins COMPONENT PLUGINS # Windows .dll
+    LIBRARY DESTINATION Plugins COMPONENT PLUGINS # Linux/Mac .so
+    ARCHIVE DESTINATION lib     COMPONENT LINKLIB # Windows .lib
+    PUBLIC_HEADER DESTINATION "include/${VOLUMEDATA}" COMPONENT HEADERS
 )
 
 add_custom_command(TARGET ${VOLUMEDATA} POST_BUILD
