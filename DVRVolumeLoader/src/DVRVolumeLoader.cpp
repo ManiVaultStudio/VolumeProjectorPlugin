@@ -161,17 +161,28 @@ void DVRVolumeLoader::loadData()
             return;
         }
 
-        auto sourceDataset = inputDialog->getSourceDataset();
-        auto numDims = inputDialog->getNumberOfValueDimensions();
-        auto storeAs = inputDialog->getStoreAs();
+        const auto parentDataset = inputDialog->getSourceDataset();
+        const auto sourceType    = inputDialog->getDatasetSource();
+        const auto datasetName   = inputDialog->getDatasetName();
+        const auto numDims       = inputDialog->getNumberOfValueDimensions();
+        const auto storeAs       = inputDialog->getStoreAs();
+        const auto volumeBoxSize = Size3D(inputDialog->getNumberOfDimensionsX(), inputDialog->getNumberOfDimensionsY(), inputDialog->getNumberOfDimensionsZ());
 
-        Dataset<Points> point_data = sourceDataset.isValid()
-            ? mv::data().createDerivedDataset<Points>(inputDialog->getDatasetName(), sourceDataset)
-            : mv::data().createDataset<Points>("Points", inputDialog->getDatasetName());
+        auto createValuesDataset = [sourceType, &datasetName, &parentDataset]() ->  Dataset<Points>
+        {
+            if (sourceType == DatasetSource::VolumePointDatasets)
+                return parentDataset;
 
-        Size3D volumeBoxSize = Size3D(inputDialog->getNumberOfDimensionsX(), inputDialog->getNumberOfDimensionsY(), inputDialog->getNumberOfDimensionsZ());
+            return parentDataset.isValid()
+                ? mv::data().createDerivedDataset<Points>(datasetName, parentDataset)
+                : mv::data().createDataset<Points>("Points", datasetName);
+        };
 
-        if (inputDialog->getDatasetSource() == DatasetSource::ScatteredPointDatasets) {
+        Dataset<Points> valuesDataset = createValuesDataset();
+
+        switch (inputDialog->getDatasetSource())
+        {
+        case DatasetSource::ScatteredPointDatasets: {
             Dataset<Points> spatialDataset = inputDialog->getSpatialDataset();
             Dataset<Points> valueDataset = inputDialog->getValueDataset();
 
@@ -192,18 +203,18 @@ void DVRVolumeLoader::loadData()
                         spatialPositions.push_back(value);
                     }
                 }
-            });
+                });
             std::vector<float> newDataset(volumeBoxSize.width() * volumeBoxSize.height() * volumeBoxSize.depth() * numDims, 0.0f);
             std::vector<float> numValuesPlaced(volumeBoxSize.width() * volumeBoxSize.height() * volumeBoxSize.depth() * numDims, 0.0f);
             int i = 0;
             valueDataset->visitData([this, &spatialPositions, &numValuesPlaced, &newDataset, &min, &max, &volumeBoxSize, &numDims, &i](auto pointData) {
                 for (const auto& point : pointData)
                 {
-                    mv::Vector3f normalizedPos = normalizePosition(mv::Vector3f(spatialPositions[i], spatialPositions[i + 1], spatialPositions[i + 2]), min, max, volumeBoxSize);
-                    int x = int(std::round(normalizedPos.x));
-                    int y = int(std::round(normalizedPos.y));
-                    int z = int(std::round(normalizedPos.z));
-                    int voxelIndex = x + y * volumeBoxSize.width() + z * volumeBoxSize.width() * volumeBoxSize.height();
+                    const mv::Vector3f normalizedPos = normalizePosition(mv::Vector3f(spatialPositions[i], spatialPositions[i + 1], spatialPositions[i + 2]), min, max, volumeBoxSize);
+                    const int x = static_cast<int>(std::round(normalizedPos.x));
+                    const int y = static_cast<int>(std::round(normalizedPos.y));
+                    const int z = static_cast<int>(std::round(normalizedPos.z));
+                    const int voxelIndex = x + y * volumeBoxSize.width() + z * volumeBoxSize.width() * volumeBoxSize.height();
                     //Populate the texture data with values 
                     for (int j = 0; j < numDims; ++j) {
                         newDataset[voxelIndex * numDims + j] += point[j];
@@ -211,33 +222,40 @@ void DVRVolumeLoader::loadData()
                     }
                     i = i + 3;
                 }
-            });
+                });
 
             for (size_t i = 0; i < numValuesPlaced.size(); ++i) { // Average the values
-                if(numValuesPlaced[i] != 0) {
+                if (numValuesPlaced[i] != 0) {
                     newDataset[i] = newDataset[i] / numValuesPlaced[i];
                 }
             }
-            point_data->setData(newDataset, numDims);
-        }
-        else {
+            valuesDataset->setData(newDataset, numDims);
 
-            if (inputDialog->getDataType() == BinaryDataType::FLOAT)
-            {
-                recursiveReadDataAndAddToCore<float>(storeAs, point_data, numDims, _contents);
+            break;
+        }
+        case DatasetSource::File: {
+            if (inputDialog->getDataType() == BinaryDataType::FLOAT) {
+                recursiveReadDataAndAddToCore<float>(storeAs, valuesDataset, numDims, _contents);
             }
-            else if (inputDialog->getDataType() == BinaryDataType::UBYTE)
-            {
-                recursiveReadDataAndAddToCore<unsigned char>(storeAs, point_data, numDims, _contents);
+            else if (inputDialog->getDataType() == BinaryDataType::UBYTE) {
+                recursiveReadDataAndAddToCore<unsigned char>(storeAs, valuesDataset, numDims, _contents);
             }
-            else if (inputDialog->getDataType() == BinaryDataType::UINT16)
-            {
-                recursiveReadDataAndAddToCore<std::uint16_t>(storeAs, point_data, numDims, _contents);
+            else if (inputDialog->getDataType() == BinaryDataType::UINT16) {
+                recursiveReadDataAndAddToCore<std::uint16_t>(storeAs, valuesDataset, numDims, _contents);
             }
+
+            break;
+        }
+        case DatasetSource::VolumePointDatasets: {
+            if (!parentDataset.isValid())
+                qWarning() << "DVRVolumeLoader::loadData: Source data must be set for DatasetSource::VolumePointDatasets.";
+
+           break;
+        }
         }
 
         // Create the Volumes dataset
-        _volumesDataset = mv::data().createDataset<Volumes>("Volumes", inputDialog->getDatasetName(), point_data);
+        _volumesDataset = mv::data().createDataset<Volumes>("Volumes", inputDialog->getDatasetName(), valuesDataset);
 
         _volumesDataset->setVolumeSize(volumeBoxSize);
         _volumesDataset->setComponentsPerVoxel(numDims);
@@ -299,7 +317,12 @@ DVRVolumeLoadingInputDialog::DVRVolumeLoadingInputDialog(QWidget* parent, DVRVol
     _fileLoadAction(this, "Load File"),
     _settingsGroupAction(this, "Settings"),
     _fileGroupAction(this, "File selection"),
-    _scatteredDataGroupAction(this, "Dataset selection"),
+    _scatteredDataGroupAction(this, "Dataset (scat.) selection"),
+    _volumeDataGroupAction(this, "Dataset (vol.) selection"),
+    _fileRadioButton(new QRadioButton(tr("File"), this)),
+    _scatteredDataRadioButton(new QRadioButton(tr("Datasets (scat.)"), this)),
+    _volumeDataRadioButton(new QRadioButton(tr("Datasets (vol.)"), this)),
+    _dataSourceButtonGroup(new QButtonGroup(this)),
     _selectedWidget(nullptr)
 {
     setWindowTitle(tr("DVRVolume Loader"));
@@ -335,12 +358,9 @@ DVRVolumeLoadingInputDialog::DVRVolumeLoadingInputDialog(QWidget* parent, DVRVol
     _settingsGroupAction.addAction(&_datasetNameAction);
 
     // Add radio buttons for dataset source selection
-    _fileRadioButton = new QRadioButton(tr("File"), this);
-    _scatteredDataRadioButton = new QRadioButton(tr("Point Datasets"), this);
-
-    _dataSourceButtonGroup = new QButtonGroup(this);
     _dataSourceButtonGroup->addButton(_fileRadioButton, DatasetSource::File);
     _dataSourceButtonGroup->addButton(_scatteredDataRadioButton, DatasetSource::ScatteredPointDatasets);
+    _dataSourceButtonGroup->addButton(_volumeDataRadioButton, DatasetSource::VolumePointDatasets);
 
     _fileRadioButton->setChecked(true); // Default to None
 
@@ -353,6 +373,7 @@ DVRVolumeLoadingInputDialog::DVRVolumeLoadingInputDialog(QWidget* parent, DVRVol
     buttonsLayout->setContentsMargins(150, 0, 0, 0);
     buttonsLayout->addWidget(_fileRadioButton);
     buttonsLayout->addWidget(_scatteredDataRadioButton);
+    buttonsLayout->addWidget(_volumeDataRadioButton);
     layout->addLayout(buttonsLayout);
 
     _fileGroupAction.addAction(&_fileLoadAction);
@@ -366,6 +387,11 @@ DVRVolumeLoadingInputDialog::DVRVolumeLoadingInputDialog(QWidget* parent, DVRVol
     _scatteredDataGroupAction.addAction(&_valueDatasetPickerAction);
     _scatteredDataGroupAction.addAction(&_acceptAction);
 
+    auto stringAction = new mv::gui::StringAction(this, "Info", "You must select a source dataset for this option!");
+    stringAction->setDefaultWidgetFlags(mv::gui::StringAction::WidgetFlag::Label);
+    _volumeDataGroupAction.addAction(stringAction);
+    _volumeDataGroupAction.addAction(&_acceptAction);
+
     _selectedWidget = _fileGroupAction.createWidget(this);
     layout->addWidget(_selectedWidget);
     setLayout(layout);
@@ -377,23 +403,40 @@ DVRVolumeLoadingInputDialog::DVRVolumeLoadingInputDialog(QWidget* parent, DVRVol
 
     //Update the selected widget when a radio button is clicked
     connect(_dataSourceButtonGroup, &QButtonGroup::buttonClicked, this, [this, layout]() -> void {
-        int id = _dataSourceButtonGroup->checkedId();
-        _datasetSource = static_cast<DatasetSource>(id);
+        const int id    = _dataSourceButtonGroup->checkedId();
+        _datasetSource  = static_cast<DatasetSource>(id);
+        
         if (_selectedWidget) {
             layout->removeWidget(_selectedWidget);
             _selectedWidget->deleteLater();
         }
-        if (_datasetSource == DatasetSource::File) {
+
+        bool enableAccept = true;
+
+        switch (_datasetSource)
+        {
+        case DatasetSource::File:
             _selectedWidget = _fileGroupAction.createWidget(this);
-        }
-        else if (_datasetSource == DatasetSource::ScatteredPointDatasets) {
+            break;
+        case DatasetSource::ScatteredPointDatasets:
             _selectedWidget = _scatteredDataGroupAction.createWidget(this);
+            break;
+        case DatasetSource::VolumePointDatasets:
+            _selectedWidget = _volumeDataGroupAction.createWidget(this);
+            enableAccept = (_sourceDatasetPickerAction.getCurrentIndex() != -1);
+
+            break;
         }
+
+        _acceptAction.setEnabled(enableAccept);
+
         layout->addWidget(_selectedWidget);
         layout->update();
         });
 
-
+    connect(&_sourceDatasetPickerAction, &mv::gui::DatasetPickerAction::datasetPicked, this, [this](const Dataset<>&) {
+        _acceptAction.setEnabled(true);
+    });
 
     // Update the state of the dataset picker
     const auto updateDatasetPicker = [this]() -> void {
