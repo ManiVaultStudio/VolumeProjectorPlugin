@@ -156,95 +156,97 @@ void DVRVolumeLoader::loadData()
 
     connect(inputDialog, &QDialog::accepted, this, [this, inputDialog]() -> void {
 
-        if (!inputDialog->getDatasetName().isEmpty()) {
-            auto sourceDataset = inputDialog->getSourceDataset();
-            auto numDims = inputDialog->getNumberOfValueDimensions();
-            auto storeAs = inputDialog->getStoreAs();
+        if (inputDialog->getDatasetName().isEmpty()) {
+            qWarning() << "DVRVolumeLoader::loadData: No dataset name provided.";
+            return;
+        }
 
-            Dataset<Points> point_data;
+        auto sourceDataset = inputDialog->getSourceDataset();
+        auto numDims = inputDialog->getNumberOfValueDimensions();
+        auto storeAs = inputDialog->getStoreAs();
 
-            if (sourceDataset.isValid())
-                point_data = mv::data().createDerivedDataset<Points>(inputDialog->getDatasetName(), sourceDataset);
-            else
-                point_data = mv::data().createDataset<Points>("Points", inputDialog->getDatasetName());
+        Dataset<Points> point_data;
 
+        if (sourceDataset.isValid())
+            point_data = mv::data().createDerivedDataset<Points>(inputDialog->getDatasetName(), sourceDataset);
+        else
+            point_data = mv::data().createDataset<Points>("Points", inputDialog->getDatasetName());
 
-            Size3D volumeBoxSize = Size3D(inputDialog->getNumberOfDimensionsX(), inputDialog->getNumberOfDimensionsY(), inputDialog->getNumberOfDimensionsZ());
+        Size3D volumeBoxSize = Size3D(inputDialog->getNumberOfDimensionsX(), inputDialog->getNumberOfDimensionsY(), inputDialog->getNumberOfDimensionsZ());
 
-            if (inputDialog->getDatasetSource() == DatasetSource::PointDatasets) {
-                Dataset<Points> spatialDataset = inputDialog->getSpatialDataset();
-                Dataset<Points> valueDataset = inputDialog->getValueDataset();
+        if (inputDialog->getDatasetSource() == DatasetSource::PointDatasets) {
+            Dataset<Points> spatialDataset = inputDialog->getSpatialDataset();
+            Dataset<Points> valueDataset = inputDialog->getValueDataset();
 
-                mv::Vector3f min = mv::Vector3f(FLT_MAX, FLT_MAX, FLT_MAX);
-                mv::Vector3f max = mv::Vector3f(FLT_MIN, FLT_MIN, FLT_MIN);
-                std::vector<float> spatialPositions;
-                spatialDataset->visitData([&min, &max, &spatialPositions](auto pointData) {
-                    for (const auto& point : pointData)
-                    {
-                        min.x = std::min(min.x, static_cast<float>(point[0]));
-                        min.y = std::min(min.y, static_cast<float>(point[1]));
-                        min.z = std::min(min.z, static_cast<float>(point[2]));
-                        max.x = std::max(max.x, static_cast<float>(point[0]));
-                        max.y = std::max(max.y, static_cast<float>(point[1]));
-                        max.z = std::max(max.z, static_cast<float>(point[2]));
+            mv::Vector3f min = mv::Vector3f(FLT_MAX, FLT_MAX, FLT_MAX);
+            mv::Vector3f max = mv::Vector3f(FLT_MIN, FLT_MIN, FLT_MIN);
+            std::vector<float> spatialPositions;
+            spatialDataset->visitData([&min, &max, &spatialPositions](auto pointData) {
+                for (const auto& point : pointData)
+                {
+                    min.x = std::min(min.x, static_cast<float>(point[0]));
+                    min.y = std::min(min.y, static_cast<float>(point[1]));
+                    min.z = std::min(min.z, static_cast<float>(point[2]));
+                    max.x = std::max(max.x, static_cast<float>(point[0]));
+                    max.y = std::max(max.y, static_cast<float>(point[1]));
+                    max.z = std::max(max.z, static_cast<float>(point[2]));
 
-                        for (auto& value : point) {
-                            spatialPositions.push_back(value);
-                        }
-                    }
-                });
-                std::vector<float> newDataset(volumeBoxSize.width() * volumeBoxSize.height() * volumeBoxSize.depth() * numDims, 0.0f);
-                std::vector<float> numValuesPlaced(volumeBoxSize.width() * volumeBoxSize.height() * volumeBoxSize.depth() * numDims, 0.0f);
-                int i = 0;
-                valueDataset->visitData([this, &spatialPositions, &numValuesPlaced, &newDataset, &min, &max, &volumeBoxSize, &numDims, &i](auto pointData) {
-                    for (const auto& point : pointData)
-                    {
-                        mv::Vector3f normalizedPos = normalizePosition(mv::Vector3f(spatialPositions[i], spatialPositions[i + 1], spatialPositions[i + 2]), min, max, volumeBoxSize);
-                        int x = int(std::round(normalizedPos.x));
-                        int y = int(std::round(normalizedPos.y));
-                        int z = int(std::round(normalizedPos.z));
-                        int voxelIndex = x + y * volumeBoxSize.width() + z * volumeBoxSize.width() * volumeBoxSize.height();
-                        //Populate the texture data with values 
-                        for (int j = 0; j < numDims; ++j) {
-                            newDataset[voxelIndex * numDims + j] += point[j];
-                            numValuesPlaced[voxelIndex * numDims + j] += 1;
-                        }
-                        i = i + 3;
-                    }
-                });
-
-                for (size_t i = 0; i < numValuesPlaced.size(); ++i) { // Average the values
-                    if(numValuesPlaced[i] != 0) {
-                        newDataset[i] = newDataset[i] / numValuesPlaced[i];
+                    for (auto& value : point) {
+                        spatialPositions.push_back(value);
                     }
                 }
-                point_data->setData(newDataset, numDims);
-            }
-            else {
+            });
+            std::vector<float> newDataset(volumeBoxSize.width() * volumeBoxSize.height() * volumeBoxSize.depth() * numDims, 0.0f);
+            std::vector<float> numValuesPlaced(volumeBoxSize.width() * volumeBoxSize.height() * volumeBoxSize.depth() * numDims, 0.0f);
+            int i = 0;
+            valueDataset->visitData([this, &spatialPositions, &numValuesPlaced, &newDataset, &min, &max, &volumeBoxSize, &numDims, &i](auto pointData) {
+                for (const auto& point : pointData)
+                {
+                    mv::Vector3f normalizedPos = normalizePosition(mv::Vector3f(spatialPositions[i], spatialPositions[i + 1], spatialPositions[i + 2]), min, max, volumeBoxSize);
+                    int x = int(std::round(normalizedPos.x));
+                    int y = int(std::round(normalizedPos.y));
+                    int z = int(std::round(normalizedPos.z));
+                    int voxelIndex = x + y * volumeBoxSize.width() + z * volumeBoxSize.width() * volumeBoxSize.height();
+                    //Populate the texture data with values 
+                    for (int j = 0; j < numDims; ++j) {
+                        newDataset[voxelIndex * numDims + j] += point[j];
+                        numValuesPlaced[voxelIndex * numDims + j] += 1;
+                    }
+                    i = i + 3;
+                }
+            });
 
-                if (inputDialog->getDataType() == BinaryDataType::FLOAT)
-                {
-                    recursiveReadDataAndAddToCore<float>(storeAs, point_data, numDims, _contents);
-                }
-                else if (inputDialog->getDataType() == BinaryDataType::UBYTE)
-                {
-                    recursiveReadDataAndAddToCore<unsigned char>(storeAs, point_data, numDims, _contents);
-                }
-                else if (inputDialog->getDataType() == BinaryDataType::UINT16)
-                {
-                    recursiveReadDataAndAddToCore<std::uint16_t>(storeAs, point_data, numDims, _contents);
+            for (size_t i = 0; i < numValuesPlaced.size(); ++i) { // Average the values
+                if(numValuesPlaced[i] != 0) {
+                    newDataset[i] = newDataset[i] / numValuesPlaced[i];
                 }
             }
+            point_data->setData(newDataset, numDims);
+        }
+        else {
 
-            // Create the Volumes dataset
-            _volumesDataset = mv::data().createDataset<Volumes>("Volumes", inputDialog->getDatasetName(), point_data);
+            if (inputDialog->getDataType() == BinaryDataType::FLOAT)
+            {
+                recursiveReadDataAndAddToCore<float>(storeAs, point_data, numDims, _contents);
+            }
+            else if (inputDialog->getDataType() == BinaryDataType::UBYTE)
+            {
+                recursiveReadDataAndAddToCore<unsigned char>(storeAs, point_data, numDims, _contents);
+            }
+            else if (inputDialog->getDataType() == BinaryDataType::UINT16)
+            {
+                recursiveReadDataAndAddToCore<std::uint16_t>(storeAs, point_data, numDims, _contents);
+            }
+        }
 
-            _volumesDataset->setVolumeSize(volumeBoxSize);
-            _volumesDataset->setComponentsPerVoxel(numDims);
+        // Create the Volumes dataset
+        _volumesDataset = mv::data().createDataset<Volumes>("Volumes", inputDialog->getDatasetName(), point_data);
 
-            events().notifyDatasetDataChanged(_volumesDataset);
+        _volumesDataset->setVolumeSize(volumeBoxSize);
+        _volumesDataset->setComponentsPerVoxel(numDims);
 
-        } else { qWarning() << "DVRVolumeLoader::loadData: No dataset name provided."; }
+        events().notifyDatasetDataChanged(_volumesDataset);
+
     });
 
     inputDialog->open();
