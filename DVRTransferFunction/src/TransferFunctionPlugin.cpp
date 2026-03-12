@@ -136,8 +136,6 @@ TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
         return dropRegions;
     });
 
-    auto& selectionAction = _settingsAction.getSelectionAction();
-
     getSamplerAction().setHtmlViewGeneratorFunction([this](const ViewPluginSamplerAction::SampleContext& toolTipContext) -> QString {
         QStringList localPointIndices, globalPointIndices;
 
