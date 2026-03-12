@@ -165,12 +165,9 @@ void DVRVolumeLoader::loadData()
         auto numDims = inputDialog->getNumberOfValueDimensions();
         auto storeAs = inputDialog->getStoreAs();
 
-        Dataset<Points> point_data;
-
-        if (sourceDataset.isValid())
-            point_data = mv::data().createDerivedDataset<Points>(inputDialog->getDatasetName(), sourceDataset);
-        else
-            point_data = mv::data().createDataset<Points>("Points", inputDialog->getDatasetName());
+        Dataset<Points> point_data = sourceDataset.isValid()
+            ? mv::data().createDerivedDataset<Points>(inputDialog->getDatasetName(), sourceDataset)
+            : mv::data().createDataset<Points>("Points", inputDialog->getDatasetName());
 
         Size3D volumeBoxSize = Size3D(inputDialog->getNumberOfDimensionsX(), inputDialog->getNumberOfDimensionsY(), inputDialog->getNumberOfDimensionsZ());
 
