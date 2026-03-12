@@ -171,7 +171,7 @@ void DVRVolumeLoader::loadData()
 
         Size3D volumeBoxSize = Size3D(inputDialog->getNumberOfDimensionsX(), inputDialog->getNumberOfDimensionsY(), inputDialog->getNumberOfDimensionsZ());
 
-        if (inputDialog->getDatasetSource() == DatasetSource::PointDatasets) {
+        if (inputDialog->getDatasetSource() == DatasetSource::ScatteredPointDatasets) {
             Dataset<Points> spatialDataset = inputDialog->getSpatialDataset();
             Dataset<Points> valueDataset = inputDialog->getValueDataset();
 
@@ -299,7 +299,7 @@ DVRVolumeLoadingInputDialog::DVRVolumeLoadingInputDialog(QWidget* parent, DVRVol
     _fileLoadAction(this, "Load File"),
     _settingsGroupAction(this, "Settings"),
     _fileGroupAction(this, "File selection"),
-    _datasetGroupAction(this, "Dataset selection"),
+    _scatteredDataGroupAction(this, "Dataset selection"),
     _selectedWidget(nullptr)
 {
     setWindowTitle(tr("DVRVolume Loader"));
@@ -336,11 +336,11 @@ DVRVolumeLoadingInputDialog::DVRVolumeLoadingInputDialog(QWidget* parent, DVRVol
 
     // Add radio buttons for dataset source selection
     _fileRadioButton = new QRadioButton(tr("File"), this);
-    _pointDatasetsRadioButton = new QRadioButton(tr("Point Datasets"), this);
+    _scatteredDataRadioButton = new QRadioButton(tr("Point Datasets"), this);
 
     _dataSourceButtonGroup = new QButtonGroup(this);
     _dataSourceButtonGroup->addButton(_fileRadioButton, DatasetSource::File);
-    _dataSourceButtonGroup->addButton(_pointDatasetsRadioButton, DatasetSource::PointDatasets);
+    _dataSourceButtonGroup->addButton(_scatteredDataRadioButton, DatasetSource::ScatteredPointDatasets);
 
     _fileRadioButton->setChecked(true); // Default to None
 
@@ -352,7 +352,7 @@ DVRVolumeLoadingInputDialog::DVRVolumeLoadingInputDialog(QWidget* parent, DVRVol
     auto buttonsLayout = new QHBoxLayout();
     buttonsLayout->setContentsMargins(150, 0, 0, 0);
     buttonsLayout->addWidget(_fileRadioButton);
-    buttonsLayout->addWidget(_pointDatasetsRadioButton);
+    buttonsLayout->addWidget(_scatteredDataRadioButton);
     layout->addLayout(buttonsLayout);
 
     _fileGroupAction.addAction(&_fileLoadAction);
@@ -362,9 +362,9 @@ DVRVolumeLoadingInputDialog::DVRVolumeLoadingInputDialog(QWidget* parent, DVRVol
     _spatialDatasetPickerAction.setDatasets(dataSets);
     _valueDatasetPickerAction.setDatasets(dataSets);
 
-    _datasetGroupAction.addAction(&_spatialDatasetPickerAction);
-    _datasetGroupAction.addAction(&_valueDatasetPickerAction);
-    _datasetGroupAction.addAction(&_acceptAction);
+    _scatteredDataGroupAction.addAction(&_spatialDatasetPickerAction);
+    _scatteredDataGroupAction.addAction(&_valueDatasetPickerAction);
+    _scatteredDataGroupAction.addAction(&_acceptAction);
 
     _selectedWidget = _fileGroupAction.createWidget(this);
     layout->addWidget(_selectedWidget);
@@ -386,8 +386,8 @@ DVRVolumeLoadingInputDialog::DVRVolumeLoadingInputDialog(QWidget* parent, DVRVol
         if (_datasetSource == DatasetSource::File) {
             _selectedWidget = _fileGroupAction.createWidget(this);
         }
-        else if (_datasetSource == DatasetSource::PointDatasets) {
-            _selectedWidget = _datasetGroupAction.createWidget(this);
+        else if (_datasetSource == DatasetSource::ScatteredPointDatasets) {
+            _selectedWidget = _scatteredDataGroupAction.createWidget(this);
         }
         layout->addWidget(_selectedWidget);
         layout->update();

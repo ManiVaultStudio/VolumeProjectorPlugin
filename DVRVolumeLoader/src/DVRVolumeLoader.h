@@ -30,7 +30,8 @@ enum BinaryDataType
 
 enum DatasetSource
 {
-    File, PointDatasets
+    File, 
+    ScatteredPointDatasets,
 };
 
 class DVRVolumeLoadingInputDialog : public QDialog
@@ -128,12 +129,12 @@ protected:
     mv::gui::TriggerAction           _fileLoadAction;                /** File action */
     mv::gui::GroupAction             _settingsGroupAction;           /** Shared group action */
     mv::gui::GroupAction             _fileGroupAction;               /** File specific group action */
-    mv::gui::GroupAction             _datasetGroupAction;            /** Datasets specific group action */
+    mv::gui::GroupAction             _scatteredDataGroupAction;      /** Datasets specific group action */
 
     DatasetSource                    _datasetSource;                 /** Dataset source */
 
     QRadioButton*                   _fileRadioButton;                /** File radio button */
-    QRadioButton*                   _pointDatasetsRadioButton;       /** Point datasets radio button */
+    QRadioButton*                   _scatteredDataRadioButton;       /** Point datasets radio button */
     QButtonGroup*                   _dataSourceButtonGroup;          /** Data source button group */
 
     QWidget*                        _selectedWidget;                 /** File widget */
