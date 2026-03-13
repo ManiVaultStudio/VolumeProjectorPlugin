@@ -8,6 +8,7 @@
 #include "SettingsAction.h"
 #include "MaterialSettings.h"
 
+#include <QPointer>
 #include <QTimer>
 
 using namespace mv::plugin;
@@ -62,7 +63,7 @@ public:
     /** Get reference to the scatter plot widget */
     TransferFunctionWidget& getTransferFunctionWidget();
 
-    SettingsAction& getSettingsAction() { return _settingsAction; }
+    SettingsAction& getSettingsAction() { return *(_settingsAction).get(); }
 
 private:
     void updateVolumeData();
@@ -83,16 +84,16 @@ public: // Serialization
     QVariantMap toVariantMap() const override;
 
 private:
-    mv::gui::DropWidget*            _dropWidget;                /** Widget for dropping datasets */
-    TransferFunctionWidget*         _transferFunctionWidget;         /** THe visualization widget */
+    QPointer<TransferFunctionWidget>    _transferFunctionWidget;    /** The visualization widget */
+    mv::gui::DropWidget*                _dropWidget;                /** Widget for dropping datasets */
 
-    Dataset<Points>                 _positionDataset;           /** Smart pointer to points dataset for point position */
-    std::vector<mv::Vector2f>       _positions;                 /** Point positions */
-    unsigned int                    _numPoints;                 /** Number of point positions */
+    Dataset<Points>                     _positionDataset;           /** Smart pointer to points dataset for point position */
+    std::vector<mv::Vector2f>           _positions;                 /** Point positions */
+    unsigned int                        _numPoints;                 /** Number of point positions */
 
-    SettingsAction                  _settingsAction;            /** Group action for all settings */
-	MaterialSettings				_materialSettings;          /** Material settings action */
-    HorizontalToolbarAction         _primaryToolbarAction;      /** Horizontal toolbar for primary content */
+    QPointer<SettingsAction>            _settingsAction;            /** Group action for all settings */
+    QPointer<MaterialSettings>			_materialSettings;          /** Material settings action */
+    QPointer<HorizontalToolbarAction>   _primaryToolbarAction;      /** Horizontal toolbar for primary content */
 
     static const std::int32_t LAZY_UPDATE_INTERVAL = 2;
 
