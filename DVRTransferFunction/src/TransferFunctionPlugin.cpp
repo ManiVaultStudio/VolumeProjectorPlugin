@@ -41,12 +41,12 @@ using namespace mv::util;
 
 TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
     ViewPlugin(factory),
-    _dropWidget(nullptr),
     _transferFunctionWidget(new TransferFunctionWidget()),
+    _dropWidget(new DropWidget(_transferFunctionWidget)),
     _numPoints(0),
-    _settingsAction(this, "Settings"),
-	_materialSettings(this, "Material Settings"),
-    _primaryToolbarAction(this, "Primary Toolbar")
+    _settingsAction(new SettingsAction(this, "Settings")),
+	_materialSettings(new MaterialSettings(this, "Material Settings")),
+    _primaryToolbarAction(new HorizontalToolbarAction(this, "Primary Toolbar"))
 {
     setObjectName("TransferFunction");
 
@@ -59,21 +59,19 @@ TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
     shortcuts.add({ QKeySequence(Qt::CTRL), "Selection", "Remove from selection" });
 
     shortcuts.add({ QKeySequence(Qt::Key_S), "Render", "Scatter mode (default)" });
-    
-    _dropWidget = new DropWidget(_transferFunctionWidget);
 
     getWidget().setFocusPolicy(Qt::ClickFocus);
 
-    _primaryToolbarAction.addAction(&_settingsAction.getDatasetsAction());
+    _primaryToolbarAction->addAction(&_settingsAction->getDatasetsAction());
 
-    _primaryToolbarAction.addAction(&_settingsAction.getSelectionAction());
-	_primaryToolbarAction.addAction(&_settingsAction.getPointsAction());
+    _primaryToolbarAction->addAction(&_settingsAction->getSelectionAction());
+	_primaryToolbarAction->addAction(&_settingsAction->getPointsAction());
 
     connect(_transferFunctionWidget, &TransferFunctionWidget::customContextMenuRequested, this, [this](const QPoint& point) {
         if (!_positionDataset.isValid())
             return;
 
-        auto contextMenu = _settingsAction.getContextMenu();
+        auto contextMenu = _settingsAction->getContextMenu();
 
         contextMenu->addSeparator();
 
@@ -172,7 +170,7 @@ void TransferFunctionPlugin::init()
 
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
-    layout->addWidget(_primaryToolbarAction.createWidget(&getWidget()));
+    layout->addWidget(_primaryToolbarAction->createWidget(&getWidget()));
     layout->addWidget(_transferFunctionWidget, 100);
 
     auto& navigationAction = _transferFunctionWidget->getPointRendererNavigator().getNavigationAction();
@@ -181,12 +179,12 @@ void TransferFunctionPlugin::init()
         layout->addWidget(navigationWidget);
         layout->setAlignment(navigationWidget, Qt::AlignCenter);
 
-        navigationAction.setParent(&_settingsAction);
+        navigationAction.setParent(_settingsAction.get());
     }
 
     getWidget().setLayout(layout);
 
-    addDockingAction(&_materialSettings);
+    addDockingAction(_materialSettings.get());
 
     // Set minimum size for the dock widget
     getWidget().setMinimumSize(512, 512);
@@ -198,12 +196,12 @@ void TransferFunctionPlugin::init()
     connect(&_positionDataset, &Dataset<Points>::dataChanged, this, &TransferFunctionPlugin::updateVolumeData);
     connect(&_positionDataset, &Dataset<Points>::dataSelectionChanged, this, &TransferFunctionPlugin::updateSelection);
 
-    connect(&_settingsAction.getPointsAction().getSizeAction(), &DecimalAction::valueChanged, [this](float size) {
+    connect(&_settingsAction->getPointsAction().getSizeAction(), &DecimalAction::valueChanged, [this](float size) {
 		_transferFunctionWidget->setPointSize(size);
         _transferFunctionWidget->update();
     });
 
-	connect(&_settingsAction.getPointsAction().getOpacityAction(), &DecimalAction::valueChanged, [this](float opacity) {
+	connect(&_settingsAction->getPointsAction().getOpacityAction(), &DecimalAction::valueChanged, [this](float opacity) {
 		_transferFunctionWidget->setPointOpacity(opacity);
 		_transferFunctionWidget->update();
 		});
@@ -266,8 +264,8 @@ void TransferFunctionPlugin::updateVolumeData()
     if (_positionDataset.isValid()) {
 
         // ensure point size and opacity is updated
-        _transferFunctionWidget->setPointOpacity(_settingsAction.getPointsAction().getOpacity());
-        _transferFunctionWidget->setPointSize(_settingsAction.getPointsAction().getSize());
+        _transferFunctionWidget->setPointOpacity(_settingsAction->getPointsAction().getOpacity());
+        _transferFunctionWidget->setPointSize(_settingsAction->getPointsAction().getSize());
 
     	// Determine number of points depending on if it's a full dataset or a subset
         _numPoints = _positionDataset->getNumPoints();
@@ -359,16 +357,16 @@ void TransferFunctionPlugin::fromVariantMap(const QVariantMap& variantMap)
 
     variantMapMustContain(variantMap, "Settings");
 
-    _primaryToolbarAction.fromParentVariantMap(variantMap);
-    _settingsAction.fromParentVariantMap(variantMap);
+    _primaryToolbarAction->fromParentVariantMap(variantMap);
+    _settingsAction->fromParentVariantMap(variantMap);
 }
 
 QVariantMap TransferFunctionPlugin::toVariantMap() const
 {
     QVariantMap variantMap = ViewPlugin::toVariantMap();
 
-    _primaryToolbarAction.insertIntoVariantMap(variantMap);
-    _settingsAction.insertIntoVariantMap(variantMap);
+    _primaryToolbarAction->insertIntoVariantMap(variantMap);
+    _settingsAction->insertIntoVariantMap(variantMap);
 
     return variantMap;
 }
