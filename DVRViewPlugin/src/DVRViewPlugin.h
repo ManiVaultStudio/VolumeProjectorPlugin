@@ -86,8 +86,6 @@ protected:
     mv::Dataset<Images>         _materialPositionTexture;   /** Texture containing material position data */
     mv::Dataset<Points>         _reducedPosDataset;         /** Dataset containing the dimensionality recuded locations of all the points in the volume */
     std::vector<unsigned int>   _currentDimensions;         /** Stores which dimensions of the current data are shown */
-    std::vector<float>          _spatialData;               /** Spatial data */
-    std::vector<float>          _valueData;                 /** Value data */
 };
 
 /**
