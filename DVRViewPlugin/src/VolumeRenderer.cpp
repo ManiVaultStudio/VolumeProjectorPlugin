@@ -254,7 +254,7 @@ void VolumeRenderer::setData(const mv::Dataset<Volumes>& dataset)
         return;
     }
 
-    updataDataTexture();
+    updateDataTexture();
     updateRenderCubes();
 }
 
@@ -275,14 +275,14 @@ void VolumeRenderer::setTfTexture(const mv::Dataset<Images>& tfTexture)
 
     // In these render modes the new dataset will impact the visualization and thus needs to be updated now 
     if (_renderMode == RenderMode::MULTIDIMENSIONAL_COMPOSITE_COLOR || _renderMode == RenderMode::NN_MULTIDIMENSIONAL_COMPOSITE || _renderMode == RenderMode::NN_MaterialTransition || _renderMode == RenderMode::Alt_NN_MaterialTransition || _renderMode == RenderMode::Smooth_NN_MaterialTransition)
-        updataDataTexture();
+        updateDataTexture();
 }
 
 void VolumeRenderer::setReducedPosData(const mv::Dataset<Points>& reducedPosData)
 {
     _reducedPosDataset = reducedPosData;
     if (!_renderMode == RenderMode::MULTIDIMENSIONAL_COMPOSITE_FULL && !_renderMode == RenderMode::MaterialTransition_FULL && _renderMode != RenderMode::MIP) {
-        updataDataTexture(); // The position data is used in the rendering process, so we need to update the data texture (apart from the MIP and full data render modes that either don't need it or define it elsewhere)
+        updateDataTexture(); // The position data is used in the rendering process, so we need to update the data texture (apart from the MIP and full data render modes that either don't need it or define it elsewhere)
     }
 }
 
@@ -416,7 +416,7 @@ void VolumeRenderer::loadNNVolumeToTexture(mv::Texture3D& targetVolume, std::vec
     targetVolume.release(); // Unbind the texture
 }
 
-void VolumeRenderer::updataDataTexture()
+void VolumeRenderer::updateDataTexture()
 {
     QPair<float, float> scalarDataRange;
 
@@ -1916,7 +1916,7 @@ void VolumeRenderer::render()
     // Check if all datasets are valid before rendering
     if (_volumeDataset.isValid() && _reducedPosDataset.isValid() && _tfDataset.isValid() && _materialPositionDataset.isValid() && _materialTransitionDataset.isValid()) {
         if (_dataSettingsChanged) {
-            updataDataTexture();
+            updateDataTexture();
             _dataSettingsChanged = false;
         }
         if (_renderMode == RenderMode::MaterialTransition_FULL || _renderMode == RenderMode::MULTIDIMENSIONAL_COMPOSITE_FULL)

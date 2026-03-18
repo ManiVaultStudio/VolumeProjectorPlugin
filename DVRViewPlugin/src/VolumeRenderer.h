@@ -102,7 +102,7 @@ public:
 
     void loadNNVolumeToTexture(mv::Texture3D& targetVolume, std::vector<float>& textureData, QVector<float>& usedTFImage, int width, mv::Vector3f volumeSize, int pointAmount, bool singleValueTFTexture);
 
-    void updataDataTexture();
+    void updateDataTexture();
 
     mv::Vector3f getVolumeSize() const { return _volumeSize; }
     bool getFullRenderModeInProgress() const { return _fullDataModeBatch != -1; }
