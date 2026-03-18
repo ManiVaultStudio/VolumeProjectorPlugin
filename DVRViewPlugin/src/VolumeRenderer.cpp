@@ -334,8 +334,8 @@ void VolumeRenderer::normalizePositionData(std::vector<float>& positionData)
         }
     }
 
-    float rangeX = maxX - minX;
-    float rangeY = maxY - minY;
+    const float rangeX = maxX - minX;
+    const float rangeY = maxY - minY;
 
     int size = _tfDataset->getImageSize().width(); // We use a square texture so width is also height
     if (_renderMode == RenderMode::MaterialTransition_2D || _renderMode == RenderMode::NN_MaterialTransition || _renderMode == RenderMode::Alt_NN_MaterialTransition || _renderMode == RenderMode::MaterialTransition_FULL)
@@ -517,7 +517,7 @@ void VolumeRenderer::setUseCustomRenderSpace(bool useCustomRenderSpace)
 }
 
 // Which dimension should we send to the GPU (used for the full data and MIP render modes)
-void VolumeRenderer::setCompositeIndices(std::vector<std::uint32_t> compositeIndices)
+void VolumeRenderer::setCompositeIndices(const std::vector<std::uint32_t>& compositeIndices)
 {
     if (_compositeIndices != compositeIndices)
         _dataSettingsChanged = true;

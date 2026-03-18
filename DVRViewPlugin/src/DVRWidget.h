@@ -30,7 +30,7 @@ public:
     bool isInitialized() const { return _isInitialized;};
 
     /** methods that pass the data to the renderer */
-    void setData(const Dataset<Volumes>& dataset, std::vector<std::uint32_t>& dimensionIndices);
+    void setData(const Dataset<Volumes>& dataset, const std::vector<std::uint32_t>& dimensionIndices);
     void setTfTexture(const Dataset<Images>& tfTexture);
     void setReducedPosData(const Dataset<Points>& reducedPosData); 
     void setMaterialTransitionTexture(const Dataset<Images>& materialTransitionTexture);

@@ -91,7 +91,7 @@ public:
     void setStepSize(float stepSize);
     void setRenderSpace(mv::Vector3f size);
     void setUseCustomRenderSpace(bool useCustomRenderSpace);
-    void setCompositeIndices(std::vector<std::uint32_t> compositeIndices);
+    void setCompositeIndices(const std::vector<std::uint32_t>& compositeIndices);
 
     void setRenderMode(const QString& renderMode);
     void setMIPDimension(int mipDimension);

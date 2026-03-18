@@ -124,7 +124,7 @@ void recursiveReadDataAndAddToCore<std::uint16_t, PointData::getNumberOfSupporte
 
 QString DVRVolumeLoader::getFile()
 {
-    QString fileName = AskForFileName(tr("BIN Files (*.bin)"));
+    const QString fileName = AskForFileName(tr("BIN Files (*.bin)"));
 
     // Don't try to load a file if the dialog was cancelled or the file name is empty
     if (fileName.isNull() || fileName.isEmpty())

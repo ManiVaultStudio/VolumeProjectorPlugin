@@ -228,27 +228,27 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
         const std::int32_t numberOfVoxels = getNumberOfVoxels();
         const std::int32_t numberOfElementsRequired = std::ceil(float(dimensionIndices.size()) / float(textureBlockDimensions)) * textureBlockDimensions * getNumberOfVoxels();
 
-        int brickAmount = std::ceil(float(dimensionIndices.size()) / float(textureBlockDimensions));
+        const int brickAmount = std::ceil(float(dimensionIndices.size()) / float(textureBlockDimensions));
 
-        // These are currently not intresting, but later on we might add borders to the blocks to avoid interpolation artifacts
-        int width = getVolumeSize().width();
-        int height = getVolumeSize().height();
-        int depth = getVolumeSize().depth();
+        // These are currently not interesting, but later on we might add borders to the blocks to avoid interpolation artifacts
+        const int width = getVolumeSize().width();
+        const int height = getVolumeSize().height();
+        const int depth = getVolumeSize().depth();
+
 
         // Here we figure out the optimal way we can arrange the atlas bricks such that we minimize the amount of wasted space in the texture
-        mv::Vector3f maxDimsInBricks = mv::Vector3f(GL_MAX_3D_TEXTURE_SIZE / width, GL_MAX_3D_TEXTURE_SIZE / height, GL_MAX_3D_TEXTURE_SIZE / depth);
-        mv::Vector3f brickLayout = findOptimalDimensions(brickAmount, maxDimsInBricks);
-
+        const mv::Vector3f maxDimsInBricks = mv::Vector3f(GL_MAX_3D_TEXTURE_SIZE / width, GL_MAX_3D_TEXTURE_SIZE / height, GL_MAX_3D_TEXTURE_SIZE / depth);
+        const mv::Vector3f brickLayout = findOptimalDimensions(brickAmount, maxDimsInBricks);
 
         QVector<float> tempScalarData(numberOfElementsRequired);
         qDebug() << "Size of temp vector: " << tempScalarData.size() << " " << numberOfElementsRequired;
         QPair<float, float> tempScalarDataRange(std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest());
 
-        int trueWidth = width * brickLayout.x;
-        int trueHeight = height * brickLayout.y;
-        int trueDepth = depth * brickLayout.z;
+        const int trueWidth = width * brickLayout.x;
+        const int trueHeight = height * brickLayout.y;
+        const int trueDepth = depth * brickLayout.z;
         
-        int trueVolume = trueWidth * trueHeight * trueDepth * textureBlockDimensions;
+        const int trueVolume = trueWidth * trueHeight * trueDepth * textureBlockDimensions;
         if (trueVolume >= scalarData.size()) {
             scalarData.resize(trueVolume);
             qDebug() << "Resized scalar data to: " << trueVolume;
@@ -258,11 +258,11 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
         std::int32_t componentIndex = 0;
         for (const auto& dimensionIndex : dimensionIndices) {
             getScalarDataForVolumeDimension(dimensionIndex, tempScalarData, tempScalarDataRange);
-            int brickIndex = std::floor(float(componentIndex) / float(textureBlockDimensions));
+            const int brickIndex = std::floor(float(componentIndex) / float(textureBlockDimensions));
 
-            int brickX = brickIndex % int(brickLayout.x);
-            int brickY = int(std::floor(float(brickIndex) / float(brickLayout.x))) % int(brickLayout.y);
-            int brickZ = std::floor(float(brickIndex) / float(brickLayout.x * brickLayout.y));
+            const int brickX = brickIndex % int(brickLayout.x);
+            const int brickY = int(std::floor(float(brickIndex) / float(brickLayout.x))) % int(brickLayout.y);
+            const int brickZ = std::floor(float(brickIndex) / float(brickLayout.x * brickLayout.y));
             for (std::int32_t voxelIndex = 0; voxelIndex < numberOfVoxels; voxelIndex++) {
                 mv::Vector3f voxelCoordinate = getVoxelCoordinateFromVoxelIndex(voxelIndex);
                 // The voxel coordinate detimenes the position of the voxel in the volume, not accounting for (for example) the rgba format yet inside the brick itself
@@ -272,10 +272,10 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
                     * textureBlockDimensions;
 
                 // Here, we add the offset of the channel inside the brick
-                std::uint32_t channelOffset = componentIndex % textureBlockDimensions;
-                std::uint32_t valueIndex = voxelBaseIndex + channelOffset;
+                const std::uint32_t channelOffset = componentIndex % textureBlockDimensions;
+                const std::uint32_t valueIndex = voxelBaseIndex + channelOffset;
 
-                float value = tempScalarData[voxelIndex];
+                const float value = tempScalarData[voxelIndex];
                 if(valueIndex > scalarData.size())
                     qCritical() << "Index out of bounds: " << valueIndex << " " << scalarData.size();
                 scalarData[valueIndex] = value;

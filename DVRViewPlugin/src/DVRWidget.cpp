@@ -72,12 +72,12 @@ DVRWidget::~DVRWidget()
     cleanup();
 }
 
-void DVRWidget::setData(const Dataset<Volumes>& dataset, std::vector<std::uint32_t>& dimensionIndices)
+void DVRWidget::setData(const Dataset<Volumes>& dataset, const std::vector<std::uint32_t>& dimensionIndices)
 {
     _volumeDataset = dataset;
 
     //reset camera to fit new dataset
-    mv::Vector3f center = _volumeDataset->getVolumeSize().toVector3f() / 2.0f;
+    const mv::Vector3f center = _volumeDataset->getVolumeSize().toVector3f() / 2.0f;
     _camera.setDistance(_volumeDataset->getVolumeSize().width() * 2);
     _camera.setCenter(QVector3D(center.x, center.y, center.z));
 
@@ -171,7 +171,7 @@ void DVRWidget::initializeGL()
     // Initialize renderers
     _volumeRenderer.init();
 
-    mv::Vector3f center = _volumeRenderer.getVolumeSize();
+    const mv::Vector3f center = _volumeRenderer.getVolumeSize();
     _camera.setDistance(center.x * 2);
     _camera.setCenter(QVector3D(center.x, center.y, center.z) / 2);
 
@@ -186,7 +186,7 @@ void DVRWidget::initializeGL()
 
 void DVRWidget::updatePixelRatio()
 {
-    float pixelRatio = devicePixelRatio();
+    const float pixelRatio = devicePixelRatio();
 
     // we only update if the ratio actually changed
     if (_pixelRatio != pixelRatio)
