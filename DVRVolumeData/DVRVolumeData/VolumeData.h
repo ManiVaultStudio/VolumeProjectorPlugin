@@ -5,7 +5,7 @@
 #pragma once
 
 #include "dvrvolumedata_export.h"
-#include "Volume.h"
+#include "Size3D.h"
 
 #include <RawData.h>
 #include <Set.h>
