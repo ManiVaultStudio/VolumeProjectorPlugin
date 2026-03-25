@@ -16,19 +16,14 @@ InteractiveShape::InteractiveShape(const QPixmap& pixmap, const QRectF& rect, co
 }
 
 void InteractiveShape::draw(QPainter& painter, bool drawBorder, bool useGlobalAlpha, bool normalizeWindow /*true*/, QColor borderColor /* Black */) const {
-    QRectF adjustedRect;
-    if (normalizeWindow) {
-        adjustedRect = getRelativeRect();
-    } else {
-        adjustedRect = getAbsoluteRect();
-    }
+    const QRectF adjustedRect = normalizeWindow ? getRelativeRect() : getAbsoluteRect();
     if (drawBorder) {
         QPen pen(borderColor);
         pen.setWidth(2);
         painter.setPen(pen);
         painter.drawRect(adjustedRect);
 
-        QRectF topRightRect(adjustedRect.topRight() - QPointF(_threshold, 0), QSizeF(_threshold, _threshold));
+        const QRectF topRightRect(adjustedRect.topRight() - QPointF(_threshold, 0), QSizeF(_threshold, _threshold));
         painter.setPen(pen);
         painter.drawRect(topRightRect);
     }
@@ -43,13 +38,7 @@ void InteractiveShape::draw(QPainter& painter, bool drawBorder, bool useGlobalAl
 }
 
 void InteractiveShape::drawID(QPainter& painter, bool normalizeWindow, int id) const {
-    QRectF adjustedRect;
-    if (normalizeWindow) {
-        adjustedRect = getRelativeRect();
-    }
-    else {
-        adjustedRect = getAbsoluteRect();
-    }
+    const QRectF adjustedRect = normalizeWindow ? getRelativeRect() : getAbsoluteRect();
 
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     
