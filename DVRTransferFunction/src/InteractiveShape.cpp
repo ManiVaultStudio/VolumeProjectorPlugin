@@ -90,7 +90,7 @@ void InteractiveShape::resizeBy(const QPointF& delta, SelectedSide& side) {
         break;
     }
     if (_rect.left() > _rect.right()) {
-        qreal temp = _rect.left();
+        const qreal temp = _rect.left();
         _rect.setLeft(_rect.right());
         _rect.setRight(temp);
         if (side == SelectedSide::Left) {
@@ -99,7 +99,7 @@ void InteractiveShape::resizeBy(const QPointF& delta, SelectedSide& side) {
             side = SelectedSide::Left;
         }
     } else if (_rect.top() > _rect.bottom()) {
-        qreal temp = _rect.top();
+        const qreal temp = _rect.top();
         _rect.setTop(_rect.bottom());
         _rect.setBottom(temp);
         if (side == SelectedSide::Top) {
@@ -111,7 +111,7 @@ void InteractiveShape::resizeBy(const QPointF& delta, SelectedSide& side) {
 }
 
 bool InteractiveShape::isNearSide(const QPointF& point, SelectedSide& side) const {
-    QRectF adjustedRect = getRelativeRect();
+    const QRectF adjustedRect = getRelativeRect();
     if (std::abs(point.x() - adjustedRect.left()) <= _threshold && point.y() <= adjustedRect.bottom() && point.y() >= adjustedRect.top()) {
         side = SelectedSide::Left;
         return true;
