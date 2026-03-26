@@ -18,7 +18,6 @@ find_package(ManiVault COMPONENTS Core PointData CONFIG QUIET)
 # Source files
 # -----------------------------------------------------------------------------
 set(VOLUME_DATA_HEADERS 
-    DVRVolumeData/Volume.h
     DVRVolumeData/VolumeData.h
     DVRVolumeData/Volumes.h
     DVRVolumeData/Size3D.h
@@ -27,7 +26,6 @@ set(VOLUME_DATA_HEADERS
 )
 
 set(VOLUME_DATA_SOURCES 
-    DVRVolumeData/Volume.cpp
     DVRVolumeData/VolumeData.cpp
     DVRVolumeData/Volumes.cpp
 )
