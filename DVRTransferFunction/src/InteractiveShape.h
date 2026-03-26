@@ -27,7 +27,7 @@ class InteractiveShape {
 public:
     InteractiveShape(const QPixmap& pixmap, const QRectF& rect, const QRect& bounds, QColor pixmapColor, float globalAlphaValue, qreal threshold = 10.0);
 
-    void draw(QPainter& painter, bool drawBorder, bool useGlobalAlpha, bool normalizeWindow = true, QColor borderColor = Qt::black) const;
+    void draw(QPainter& painter, bool drawBorder, bool useGlobalAlpha, bool normalizeWindow, QColor borderColor = Qt::black) const;
 	void drawID(QPainter& painter, bool normalizeWindow, int id) const;
     bool contains(const QPointF& point) const;
     void moveBy(const QPointF& delta);

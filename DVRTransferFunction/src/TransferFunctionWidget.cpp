@@ -462,7 +462,7 @@ void TransferFunctionWidget::paintGL()
         shapePainter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
         for (const auto& obj : _interactiveShapes) {
-            obj.draw(shapePainter, true, _useGlobalAlpha);
+            obj.draw(shapePainter, true, _useGlobalAlpha, true);
         }
 
         shapePainter.end();
