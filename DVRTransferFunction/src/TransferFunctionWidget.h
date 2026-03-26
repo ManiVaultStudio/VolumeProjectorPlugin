@@ -179,7 +179,7 @@ private:
 	bool                            _useGlobalAlpha = false;			/** The global alpha changes the alpha value of all the colors the user sees on their screen not the colors that are passes along */
 	int                             _globalAlphaValue = 100;
 
-    const int _tfTextureSize = 512;
-    const int _materialTextureSize = 128;
-	const int _materialPositionTextureSize = 1024;
+    constexpr static int            _tfTextureSize = 512;
+    constexpr static int            _materialTextureSize = 128;
+	constexpr static int            _materialPositionTextureSize = 1024;
 };
