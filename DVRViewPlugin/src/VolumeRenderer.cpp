@@ -341,7 +341,7 @@ void VolumeRenderer::normalizePositionData(std::vector<float>& positionData)
     if (_renderMode == RenderMode::MaterialTransition_2D || _renderMode == RenderMode::NN_MaterialTransition || _renderMode == RenderMode::Alt_NN_MaterialTransition || _renderMode == RenderMode::MaterialTransition_FULL)
         size = _materialPositionDataset->getImageSize().width();
 
-    for (int i = 0; i < positionData.size(); i += 2)
+    for (size_t i = 0; i < positionData.size(); i += 2)
     {
         positionData[i] = ((positionData[i] - minX) / rangeX) * (size - 1);
         positionData[i + 1] = ((positionData[i + 1] - minY) / rangeY) * (size - 1);
