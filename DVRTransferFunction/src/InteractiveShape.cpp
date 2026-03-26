@@ -1,8 +1,10 @@
 #include "InteractiveShape.h"
 #include <QDebug>
 
-InteractiveShape::InteractiveShape(const QPixmap& pixmap, const QRectF& rect, const QRect& bounds, QColor pixmapColor, float globalAlphaValue, qreal threshold)
-	: _pixmap(pixmap), _rect(rect), _bounds(bounds), _isSelected(false), _pixmapColor(pixmapColor), _globalAlphaValue(globalAlphaValue), _threshold(threshold)  {
+InteractiveShape::InteractiveShape(const QPixmap& pixmap, const QRectF& rect, const QRect& bounds, QColor pixmapColor, float globalAlphaValue, qreal threshold): 
+	_pixmap(pixmap), _rect(rect), _bounds(bounds), _isSelected(false), 
+	_threshold(threshold), _pixmapColor(pixmapColor), _globalAlphaValue(globalAlphaValue)  
+{
     _mask = _pixmap.createMaskFromColor(Qt::transparent);
 
     _gradient1D = QImage(":textures/gaussian1D_texture", ".png");
