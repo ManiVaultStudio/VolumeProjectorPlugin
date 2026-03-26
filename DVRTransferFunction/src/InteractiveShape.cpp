@@ -75,6 +75,7 @@ void InteractiveShape::resizeBy(const QPointF& delta, SelectedSide& side) {
     case SelectedSide::Bottom:
         _rect.setBottom(_rect.bottom() + delta.y() / _bounds.height());
         break;
+    case SelectedSide::None: [[fallthrough]];
     default:
         break;
     }
@@ -179,11 +180,11 @@ void InteractiveShape::updateGradient(gradientData data)
             qCritical() << "Unknown texture ID: currently only 0 and 1 exist";
             return;
         }
-		QSize pixmapSize = _pixmap.size();
-        float biggestFit = std::max(gradient.width() / pixmapSize.width(), gradient.height() / pixmapSize.height());
+		const QSize pixmapSize = _pixmap.size();
+        const float biggestFit = std::max(gradient.width() / pixmapSize.width(), gradient.height() / pixmapSize.height());
 
         gradient = gradient.copy(QRect((_gradientData.xOffset + ((1 - _gradientData.width) / 2)) * gradient.width(), (_gradientData.yOffset + ((1 - _gradientData.height) / 2)) * gradient.height(), _gradientData.width * gradient.width(), _gradientData.height * gradient.height()));
-		gradient.scaled(_pixmap.size() * biggestFit); //scale to the ratio of the pixmap to simulate gradient width and height
+		gradient.scaled(pixmapSize * biggestFit); //scale to the ratio of the pixmap to simulate gradient width and height
 
         gradient = gradient.transformed(QTransform().rotate(_gradientData.rotation));
         //gradient = gradient.copy(QRect((gradient.width() - _pixmap.width()) / 2, (gradient.height() - _pixmap.height()) / 2, _pixmap.width(), _pixmap.height()));
@@ -245,19 +246,19 @@ void InteractiveShape::updatePixmap()
 }
 
 QRectF InteractiveShape::getRelativeRect() const {
-    return QRectF(
+    return{
         _bounds.left() + _rect.left() * _bounds.width(),
         _bounds.top() + _rect.top() * _bounds.height(),
         _rect.width() * _bounds.width(),
         _rect.height() * _bounds.height()
-    );
+    };
 }
 
 QRectF InteractiveShape::getAbsoluteRect() const {
-    return QRectF(
+    return {
         _rect.left() * _bounds.width(),
         _rect.top() * _bounds.height(),
         _rect.width() * _bounds.width(),
         _rect.height() * _bounds.height()
-    );
+    };
 }
