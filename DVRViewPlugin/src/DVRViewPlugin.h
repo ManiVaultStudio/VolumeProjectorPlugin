@@ -12,7 +12,6 @@
 #include "SettingsAction.h"
 
 #include <QWidget>
-#include <DVRVolumeData/VolumeData.h>
 #include <DVRVolumeData/Volumes.h>
 
 /** All plugin related classes are in the ManiVault plugin namespace */

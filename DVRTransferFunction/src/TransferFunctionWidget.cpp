@@ -2,21 +2,19 @@
 
 #include <CoreInterface.h>
 
+#include <graphics/Bounds.h>
+#include <graphics/Vector3f.h>
 #include <util/Exception.h>
 
 #include <vector>
 
 #include <QDebug>
-#include <QGuiApplication>
-#include <QMatrix4x4>
 #include <QOpenGLFramebufferObject>
 #include <QPainter>
 #include <QSize>
 #include <QWheelEvent>
 #include <QWindow>
 #include <QRectF>
-
-#include <math.h>
 
 #include "TransferFunctionPlugin.h"
 

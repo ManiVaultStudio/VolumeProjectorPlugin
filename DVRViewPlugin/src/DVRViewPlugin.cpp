@@ -1,9 +1,9 @@
 #include "DVRViewPlugin.h"
 #include "DVRWidget.h"
 
-#include "GlobalSettingsAction.h"
+#include <DVRVolumeData/VolumeData.h>
 
-#include <graphics/Vector2f.h>
+#include "GlobalSettingsAction.h"
 
 #include <DatasetsMimeData.h>
 
@@ -12,8 +12,6 @@
 
 #include <random>
 #include <numeric>
-#include <hnswlib/hnswlib.h>
-#include <iostream>
 #include <vector>
 
 Q_PLUGIN_METADATA(IID "studio.manivault.DVRViewPlugin")

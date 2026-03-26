@@ -6,8 +6,6 @@
 #include <DataHierarchyItem.h>
 
 #include <util/PixelSelectionTool.h>
-#include <util/StyledIcon.h>
-#include <util/Timer.h>
 
 #include <ClusterData/ClusterData.h>
 #include <ColorData/ColorData.h>
@@ -23,13 +21,10 @@
 #include <DatasetsMimeData.h>
 
 #include <QAction>
-#include <QApplication>
 #include <QDebug>
 #include <QMenu>
-#include <QMetaType>
 #include <QtCore>
 
-#include <algorithm>
 #include <functional>
 #include <vector>
 #include <actions/ViewPluginSamplerAction.h>

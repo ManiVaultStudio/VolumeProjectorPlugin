@@ -5,11 +5,7 @@
 
 #include <util/PixelSelectionTool.h>
 
-#include <actions/DecimalRectangleAction.h>
-
-#include <graphics/Bounds.h>
 #include <graphics/Vector2f.h>
-#include <graphics/Vector3f.h>
 
 #include <QOpenGLFunctions_3_3_Core>
 #include <QOpenGLWidget>
@@ -17,7 +13,6 @@
 
 #include "InteractiveShape.h"
 #include "ImageData/Images.h"
-
 
 class TransferFunctionPlugin;
 
