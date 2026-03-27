@@ -171,7 +171,7 @@ private:
 	QRect 						    _areaSelectionBounds;               /** Area selection bounds */
 	QRect 						    _boundsPointsWindow; 		        /** Bounds of the points in the UI window */
 
-	std::vector<InteractiveShape>   _interactiveShapes;                 /** Stores all the interactive shapes in the transferfunction widget*/
+	std::vector<InteractiveShape>   _interactiveShapes;                 /** Stores all the interactive shapes in the transfer function widget*/
 	InteractiveShape*               _selectedObject = nullptr;	        /** Pointer to the selected object */
 	SelectedSide					_selectedSide = SelectedSide::None; /** Selected side of the object */
 	bool 						    _createShape = false;               /** Boolean determining whether a shape is to be created or not */
@@ -179,7 +179,7 @@ private:
 	bool                            _useGlobalAlpha = false;			/** The global alpha changes the alpha value of all the colors the user sees on their screen not the colors that are passes along */
 	int                             _globalAlphaValue = 100;
 
-    const int _tfTextureSize = 512;
-    const int _materialTextureSize = 128;
-	const int _materialPositionTextureSize = 1024;
+    constexpr static int            _tfTextureSize = 512;
+    constexpr static int            _materialTextureSize = 128;
+	constexpr static int            _materialPositionTextureSize = 1024;
 };

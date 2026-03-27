@@ -1,8 +1,15 @@
 #include "InteractiveShape.h"
+
+#include <renderers/PointRenderer.h>
+
 #include <QDebug>
 
-InteractiveShape::InteractiveShape(const QPixmap& pixmap, const QRectF& rect, const QRect& bounds, QColor pixmapColor, float globalAlphaValue, qreal threshold)
-	: _pixmap(pixmap), _rect(rect), _bounds(bounds), _isSelected(false), _pixmapColor(pixmapColor), _globalAlphaValue(globalAlphaValue), _threshold(threshold)  {
+InteractiveShape::InteractiveShape(const QPixmap& pixmap, const QRectF& rect, const QRect& bounds, const QColor& pixmapColor, 
+    int globalAlphaValue, mv::gui::PointRenderer* pointRenderer, qreal threshold):
+	_pixmap(pixmap), _rect(rect), _bounds(bounds), _isSelected(false), 
+	_threshold(threshold), _pixmapColor(pixmapColor), _globalAlphaValue(globalAlphaValue), _pointRenderer(pointRenderer)
+{
+    assert(pointRenderer);
     _mask = _pixmap.createMaskFromColor(Qt::transparent);
 
     _gradient1D = QImage(":textures/gaussian1D_texture", ".png");
@@ -15,8 +22,10 @@ InteractiveShape::InteractiveShape(const QPixmap& pixmap, const QRectF& rect, co
 	setGlobalAlphaValue(globalAlphaValue); // This will create the globalAlphaPixmap
 }
 
-void InteractiveShape::draw(QPainter& painter, bool drawBorder, bool useGlobalAlpha, bool normalizeWindow /*true*/, QColor borderColor /* Black */) const {
-    const QRectF adjustedRect = normalizeWindow ? getRelativeRect() : getAbsoluteRect();
+void InteractiveShape::draw(QPainter& painter, bool drawBorder, bool useGlobalAlpha, bool normalizeWindow , QColor borderColor /* Black */, int scaleTo  /* 0 */) const {
+    const QRectF adjustedRect = normalizeWindow ? getRelativeRect() : getAdjustedWorldRect(scaleTo);
+	const QPixmap& pixmap = useGlobalAlpha ? _globalAlphaColormap : _pixmap;
+
     if (drawBorder) {
         QPen pen(borderColor);
         pen.setWidth(2);
@@ -29,18 +38,13 @@ void InteractiveShape::draw(QPainter& painter, bool drawBorder, bool useGlobalAl
     }
 
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-	if (useGlobalAlpha) {
-		painter.drawPixmap(adjustedRect.toRect(), _globalAlphaColormap);
-	}
-    else {
-        painter.drawPixmap(adjustedRect.toRect(), _pixmap);
-    }
+    painter.drawPixmap(adjustedRect.toRect(), pixmap);
 }
 
-void InteractiveShape::drawID(QPainter& painter, bool normalizeWindow, int id) const {
-    const QRectF adjustedRect = normalizeWindow ? getRelativeRect() : getAbsoluteRect();
+void InteractiveShape::drawID(QPainter& painter, bool normalizeWindow, int id, int scaleTo) const {
+    const QRectF adjustedRect = normalizeWindow ? getRelativeRect() : getAdjustedWorldRect(scaleTo);
 
-    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     
     QPixmap newPixmap(_pixmap.size());
     newPixmap.fill(Qt::transparent);
@@ -75,6 +79,7 @@ void InteractiveShape::resizeBy(const QPointF& delta, SelectedSide& side) {
     case SelectedSide::Bottom:
         _rect.setBottom(_rect.bottom() + delta.y() / _bounds.height());
         break;
+    case SelectedSide::None: [[fallthrough]];
     default:
         break;
     }
@@ -154,7 +159,7 @@ QColor InteractiveShape::getColor() const {
 }
 
 bool InteractiveShape::isNearTopRightCorner(const QPointF& point) const {
-    QPointF topRight = getRelativeRect().topRight();
+    const QPointF topRight = getRelativeRect().topRight();
     return (std::abs(point.x() - topRight.x()) <= _threshold && std::abs(point.y() - topRight.y()) <= _threshold);
 }
 
@@ -166,7 +171,7 @@ void InteractiveShape::setBounds(const QRect& bounds) {
     _bounds = bounds;
 }
 
-void InteractiveShape::updateGradient(gradientData data)
+void InteractiveShape::updateGradient(const gradientData& data)
 {
 	_gradientData = data;
     if (_gradientData.gradient) {
@@ -179,11 +184,11 @@ void InteractiveShape::updateGradient(gradientData data)
             qCritical() << "Unknown texture ID: currently only 0 and 1 exist";
             return;
         }
-		QSize pixmapSize = _pixmap.size();
-        float biggestFit = std::max(gradient.width() / pixmapSize.width(), gradient.height() / pixmapSize.height());
+		const QSize pixmapSize = _pixmap.size();
+        const float biggestFit = std::max(gradient.width() / pixmapSize.width(), gradient.height() / pixmapSize.height());
 
         gradient = gradient.copy(QRect((_gradientData.xOffset + ((1 - _gradientData.width) / 2)) * gradient.width(), (_gradientData.yOffset + ((1 - _gradientData.height) / 2)) * gradient.height(), _gradientData.width * gradient.width(), _gradientData.height * gradient.height()));
-		gradient.scaled(_pixmap.size() * biggestFit); //scale to the ratio of the pixmap to simulate gradient width and height
+		gradient.scaled(pixmapSize * biggestFit); //scale to the ratio of the pixmap to simulate gradient width and height
 
         gradient = gradient.transformed(QTransform().rotate(_gradientData.rotation));
         //gradient = gradient.copy(QRect((gradient.width() - _pixmap.width()) / 2, (gradient.height() - _pixmap.height()) / 2, _pixmap.width(), _pixmap.height()));
@@ -244,20 +249,56 @@ void InteractiveShape::updatePixmap()
     }
 }
 
+QRectF InteractiveShape::getAdjustedWorldRect(int scaleTo) const {
+
+    const auto left = -1.f * _pointRenderer->getDataBounds().left();
+    const auto top = -1.f * _pointRenderer->getDataBounds().top();
+	auto adjustedWorldRec = getWorldRect().adjusted(left, top, left, top);
+
+    const auto dataExtendX = _pointRenderer->getDataBounds().width();
+    const auto dataExtendY = _pointRenderer->getDataBounds().height();
+
+    // Ensure rect is in data bounds
+    adjustedWorldRec.setLeft(std::clamp(adjustedWorldRec.left(), 0., dataExtendX));
+    adjustedWorldRec.setTop(std::clamp(adjustedWorldRec.top(), 0., dataExtendY));
+    adjustedWorldRec.setRight(std::clamp(adjustedWorldRec.right(), 0., dataExtendX));
+    adjustedWorldRec.setBottom(std::clamp(adjustedWorldRec.bottom(), 0., dataExtendY));
+
+    // Scale to [0, scaleTo]
+    const auto scaleX = static_cast<qreal>(scaleTo) / dataExtendX;
+    const auto scaleY = static_cast<qreal>(scaleTo) / dataExtendY;
+
+    adjustedWorldRec.setLeft(adjustedWorldRec.left() * scaleX);
+    adjustedWorldRec.setTop(adjustedWorldRec.top() * scaleY);
+    adjustedWorldRec.setRight(adjustedWorldRec.right() * scaleX);
+    adjustedWorldRec.setBottom(adjustedWorldRec.bottom() * scaleY);
+
+    adjustedWorldRec = adjustedWorldRec.normalized();
+
+    return adjustedWorldRec;
+}
+
+QRectF InteractiveShape::getWorldRect() const {
+    const auto relRect = getRelativeRect();
+
+    const auto topLeft = _pointRenderer->getScreenPointToWorldPosition(_pointRenderer->getNavigator().getViewMatrix(), relRect.topLeft().toPoint());
+    const auto bottomRight = _pointRenderer->getScreenPointToWorldPosition(_pointRenderer->getNavigator().getViewMatrix(), relRect.bottomRight().toPoint());
+
+    return QRectF{ 
+    	QPointF{ topLeft.x(), topLeft.y() }, 
+    	QPointF{ bottomRight.x(), bottomRight.y() } 
+    };
+}
+
 QRectF InteractiveShape::getRelativeRect() const {
-    return QRectF(
-        _bounds.left() + _rect.left() * _bounds.width(),
-        _bounds.top() + _rect.top() * _bounds.height(),
-        _rect.width() * _bounds.width(),
-        _rect.height() * _bounds.height()
-    );
+	return getAbsoluteRect().adjusted(_bounds.left(), _bounds.top(), _bounds.left(), _bounds.top());
 }
 
 QRectF InteractiveShape::getAbsoluteRect() const {
-    return QRectF(
+    return {
         _rect.left() * _bounds.width(),
         _rect.top() * _bounds.height(),
         _rect.width() * _bounds.width(),
         _rect.height() * _bounds.height()
-    );
+    };
 }
