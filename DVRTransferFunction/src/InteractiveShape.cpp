@@ -1,7 +1,7 @@
 #include "InteractiveShape.h"
 #include <QDebug>
 
-InteractiveShape::InteractiveShape(const QPixmap& pixmap, const QRectF& rect, const QRect& bounds, QColor pixmapColor, float globalAlphaValue, qreal threshold): 
+InteractiveShape::InteractiveShape(const QPixmap& pixmap, const QRectF& rect, const QRect& bounds, const QColor& pixmapColor, int globalAlphaValue, qreal threshold):
 	_pixmap(pixmap), _rect(rect), _bounds(bounds), _isSelected(false), 
 	_threshold(threshold), _pixmapColor(pixmapColor), _globalAlphaValue(globalAlphaValue)  
 {
@@ -166,7 +166,7 @@ void InteractiveShape::setBounds(const QRect& bounds) {
     _bounds = bounds;
 }
 
-void InteractiveShape::updateGradient(gradientData data)
+void InteractiveShape::updateGradient(const gradientData& data)
 {
 	_gradientData = data;
     if (_gradientData.gradient) {
