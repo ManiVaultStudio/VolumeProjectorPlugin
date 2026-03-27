@@ -23,12 +23,17 @@ struct gradientData {
 	int rotation;
 };
 
+namespace mv::gui
+{
+    class PointRenderer;
+}
+
 class InteractiveShape {
 public:
-    InteractiveShape(const QPixmap& pixmap, const QRectF& rect, const QRect& bounds, const QColor& pixmapColor, int globalAlphaValue, qreal threshold = 10.0);
+    InteractiveShape(const QPixmap& pixmap, const QRectF& rect, const QRect& bounds, const QColor& pixmapColor, int globalAlphaValue, mv::gui::PointRenderer* pointRenderer, qreal threshold = 10.0);
 
-    void draw(QPainter& painter, bool drawBorder, bool useGlobalAlpha, bool normalizeWindow, QColor borderColor = Qt::black) const;
-	void drawID(QPainter& painter, bool normalizeWindow, int id) const;
+    void draw(QPainter& painter, bool drawBorder, bool useGlobalAlpha, bool normalizeWindow, QColor borderColor = Qt::black, int scaleTo = 0) const;
+	void drawID(QPainter& painter, bool normalizeWindow, int id, int scaleTo = 0) const;
     bool contains(const QPointF& point) const;
     void moveBy(const QPointF& delta);
     void resizeBy(const QPointF& delta, SelectedSide& side);
@@ -51,11 +56,12 @@ public:
 
 	void setGlobalAlphaValue(int globalAlphaValue);
     QRectF getRelativeRect() const;
+    QRectF getWorldRect() const;
+    QRectF getAdjustedWorldRect(int scaleTo = 0) const;
 
 private:
 
     QRectF getAbsoluteRect() const;
-
 	void updatePixmap();
 
 private:
@@ -78,4 +84,6 @@ private:
     QImage _usedGradient;
 
 	gradientData _gradientData;
+
+    mv::gui::PointRenderer* _pointRenderer = nullptr;
 };
