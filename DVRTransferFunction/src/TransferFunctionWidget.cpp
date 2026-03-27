@@ -513,25 +513,26 @@ void TransferFunctionWidget::updateTfTexture()
     for (const auto& obj : _interactiveShapes) {
         obj.draw(painter, false, _useGlobalAlpha, false);
     }
-
 	painter.end();
-    std::vector<float> data;
-	data.reserve(_tfTextureSize * _tfTextureSize * 4);
 
+    constexpr int tfDataSize = _tfTextureSize * _tfTextureSize * 4;
+    std::vector<float> tfData(tfDataSize, 0.0f);
+
+    size_t tfDataId = 0;
 	for (int y = _tfTextureSize - 1; y >= 0; y--) {
         for (int x = 0; x < _tfTextureSize; x++) {
 			const int normalizedX = x * materialMap.width() / _tfTextureSize;
 			const int normalizedY = y * materialMap.height() / _tfTextureSize;
 
             const QColor color = materialMap.pixelColor(normalizedX, normalizedY);
-            data.push_back(color.redF());
-            data.push_back(color.greenF());
-            data.push_back(color.blueF());
-            data.push_back(color.alphaF());
+            tfData[tfDataId++] = color.redF();
+            tfData[tfDataId++] = color.greenF();
+            tfData[tfDataId++] = color.blueF();
+            tfData[tfDataId++] = color.alphaF();
         }
     }
 
-	_tfSourceDataset->setData(data, 4); // update the data in the dataset
+	_tfSourceDataset->setData(std::move(tfData), 4); // update the data in the dataset
     
     events().notifyDatasetDataChanged(_tfSourceDataset);
 	events().notifyDatasetDataChanged(_tfTextures);
@@ -554,20 +555,21 @@ void TransferFunctionWidget::updateMaterialPositionsTexture()
     }
 	painter.end();
 
-    std::vector<float> data;
-    data.reserve(_materialPositionTextureSize * _materialPositionTextureSize);
+    constexpr auto materialPositionDataSize = _materialPositionTextureSize * _materialPositionTextureSize;
+    std::vector<float> materialPositionData(materialPositionDataSize, 0.0f);
 
+    size_t materialPositionDataId = 0;
     for (int y = _materialPositionTextureSize - 1; y >= 0; y--) {
         for (int x = 0; x < _materialPositionTextureSize; x++) {
             const int normalizedX = x * materialMap.width() / _materialPositionTextureSize;
             const int normalizedY = y * materialMap.height() / _materialPositionTextureSize;
 
             const QColor color = materialMap.pixelColor(normalizedX, normalizedY);
-            data.push_back(color.redF());
+            materialPositionData[materialPositionDataId++] = color.redF();
         }
     }
 
-    _materialPositionSourceDataset->setData(data, 1); // update the data in the dataset
+    _materialPositionSourceDataset->setData(std::move(materialPositionData), 1); // update the data in the dataset
 
 	events().notifyDatasetDataChanged(_materialPositionSourceDataset);
 	events().notifyDatasetDataChanged(_materialPositionTexture);
@@ -578,32 +580,31 @@ void TransferFunctionWidget::updateMaterialTransitionTexture(const std::vector<s
 	if (!_materialTransitionTexture.isValid())
 		return;
 
-    // A table of all shape trasitions, the absence of a colored area is its own material
-	std::vector<float> data;
-    data.reserve(_materialTextureSize * _materialTextureSize * 4);
 
+    // A table of all shape transitions, the absence of a colored area is its own material
+    constexpr auto materialTransitionDataSize = _materialTextureSize * _materialTextureSize * 4;
+    std::vector<float> materialTransitionData(materialTransitionDataSize, 0.0f);
+
+    size_t materialPositionDataId = 0;
     //for (int y = _materialTextureSize - 1; y >= 0; y--) {
     for (size_t y = 0; y < _materialTextureSize; y++) {
         for (size_t x = 0; x < _materialTextureSize; x++) {
 			if (y < transitionsTable.size() && x < transitionsTable[y].size()) // If the transition table is not big enough, we fill the rest with black
 			{
-                const QColor color = transitionsTable[y][x];
-				data.push_back(color.redF());
-				data.push_back(color.greenF());
-				data.push_back(color.blueF());
-				data.push_back(color.alphaF());
+                const QColor& color = transitionsTable[y][x];
+                materialTransitionData[materialPositionDataId++] = color.redF();
+                materialTransitionData[materialPositionDataId++] = color.greenF();
+                materialTransitionData[materialPositionDataId++] = color.blueF();
+                materialTransitionData[materialPositionDataId++] = color.alphaF();
 			}
 			else
 			{
-				data.push_back(0.0f);
-				data.push_back(0.0f);
-				data.push_back(0.0f);
-				data.push_back(0.0f);
+                materialPositionDataId += 4;
 			}
         }
     }
 
-	_materialTransitionSourceDataset->setData(data, 4); // update the data in the dataset
+	_materialTransitionSourceDataset->setData(std::move(materialTransitionData), 4); // update the data in the dataset
 
 	events().notifyDatasetDataChanged(_materialTransitionSourceDataset);
 	events().notifyDatasetDataChanged(_materialTransitionTexture);
