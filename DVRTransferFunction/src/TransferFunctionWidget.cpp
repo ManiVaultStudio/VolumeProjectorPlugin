@@ -78,12 +78,12 @@ TransferFunctionWidget::TransferFunctionWidget() :
                 static_cast<float>(_areaSelectionBounds.width()) / _boundsPointsWindow.width(),
                 static_cast<float>(_areaSelectionBounds.height()) / _boundsPointsWindow.height()
             );
-            const int borderWidth = 2;
+            constexpr int borderWidth = 2;
             const QRectF adjustedBounds = _areaSelectionBounds.adjusted(borderWidth, borderWidth, -borderWidth, -borderWidth); // The areapixmap doesn't contain the borders
             QColor areaColor = _pixelSelectionTool.getMainColor();
 			areaColor.setAlpha(50); // This is the default modification of the areaColor compared to the mainColor which we can not reach but we simulate here
 
-			_interactiveShapes.push_back(InteractiveShape(_pixelSelectionTool.getAreaPixmap().copy(adjustedBounds.toRect()), relativeRect, _boundsPointsWindow, areaColor, _globalAlphaValue));
+			_interactiveShapes.emplace_back(_pixelSelectionTool.getAreaPixmap().copy(adjustedBounds.toRect()), relativeRect, _boundsPointsWindow, areaColor, _globalAlphaValue, &_pointRenderer);
 			emit shapeCreated(_interactiveShapes);
 
             _areaSelectionBounds = QRect(0, 0, 0, 0); // Invalid Rectangle set to signal that no area is selected
@@ -237,9 +237,6 @@ bool TransferFunctionWidget::event(QEvent* event)
     return QOpenGLWidget::event(event);
 }
 
-
-
-
 QRect TransferFunctionWidget::getMousePositionsBounds(QPoint newMousePosition) {
     if (!_areaSelectionBounds.isValid()) {
 		_areaSelectionBounds = QRect(_mousePositions[0], _mousePositions[0]);
@@ -267,19 +264,18 @@ PixelSelectionTool& TransferFunctionWidget::getPixelSelectionTool()
 void TransferFunctionWidget::setData(const std::vector<Vector2f>* points)
 {
     const auto dataBounds = getDataBounds(*points);
+    _dataRectangleAction.setBounds(dataBounds);
 
     // pass un-adjusted data bounds to renderer for 2D colormapping
     const auto dataBoundsRect = QRectF(QPointF(dataBounds.getLeft(), dataBounds.getBottom()), QSizeF(dataBounds.getWidth(), dataBounds.getHeight()));
     _pointRenderer.setDataBounds(dataBoundsRect);
+    _pointRenderer.setData(*points);
+    _pointRenderer.getNavigator().resetView(true);
 
-    _dataRectangleAction.setBounds(dataBounds);
 	const int w = width();
 	const int h = height();
     const int size = w < h ? w : h;
     _boundsPointsWindow = QRect((w - size) / 2.0f, (h - size) / 2.0f, size, size);
-
-    _pointRenderer.setData(*points);
-    _pointRenderer.getNavigator().resetView(true);
 
     update();
 }
@@ -423,7 +419,6 @@ void TransferFunctionWidget::paintGL()
 	if (!_isInitialized)
 		return;
 
-
     try {
         QPainter painter;
 
@@ -505,16 +500,21 @@ void TransferFunctionWidget::updateTfTexture()
 	if (!_tfTextures.isValid())
 		return;
 
+    auto materialMap = QImage(_tfTextureSize, _tfTextureSize, QImage::Format_ARGB32);
 
-    auto materialMap = QImage(_boundsPointsWindow.width(), _boundsPointsWindow.height(), QImage::Format_ARGB32);
     QPainter painter(&materialMap);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
     for (const auto& obj : _interactiveShapes) {
-        obj.draw(painter, false, _useGlobalAlpha, false);
+        obj.draw(painter, false, _useGlobalAlpha, false, Qt::black, _tfTextureSize);
     }
 	painter.end();
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    materialMap = materialMap.flipped(Qt::Vertical);
+#else
+    materialMap = materialMap.mirrored(false, true);
+#endif
     constexpr int tfDataSize = _tfTextureSize * _tfTextureSize * 4;
     std::vector<float> tfData(tfDataSize, 0.0f);
 
@@ -543,18 +543,23 @@ void TransferFunctionWidget::updateMaterialPositionsTexture()
     if (!_materialPositionTexture.isValid())
         return;
 
+    auto materialMap = QImage(_materialPositionTextureSize, _materialPositionTextureSize, QImage::Format_ARGB32);
 
-    auto materialMap = QImage(_boundsPointsWindow.width(), _boundsPointsWindow.height(), QImage::Format_ARGB32);
     QPainter painter(&materialMap);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
     int id = 1;
     for (auto& obj : _interactiveShapes) {
-    	obj.drawID(painter, false, id);
+    	obj.drawID(painter, false, id, _materialPositionTextureSize);
         id++;
     }
 	painter.end();
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    materialMap = materialMap.flipped(Qt::Vertical);
+#else
+    materialMap = materialMap.mirrored(false, true);
+#endif
     constexpr auto materialPositionDataSize = _materialPositionTextureSize * _materialPositionTextureSize;
     std::vector<float> materialPositionData(materialPositionDataSize, 0.0f);
 
@@ -579,7 +584,6 @@ void TransferFunctionWidget::updateMaterialTransitionTexture(const std::vector<s
 {
 	if (!_materialTransitionTexture.isValid())
 		return;
-
 
     // A table of all shape transitions, the absence of a colored area is its own material
     constexpr auto materialTransitionDataSize = _materialTextureSize * _materialTextureSize * 4;
