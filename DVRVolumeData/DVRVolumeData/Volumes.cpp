@@ -408,7 +408,6 @@ QVariantMap Volumes::toVariantMap() const
 {
     auto variantMap = DatasetImpl::toVariantMap();
 
-
     variantMap["VolumeSize"] = QVariantMap({ { "Width", getVolumeSize().width() }, { "Height", getVolumeSize().height() }, { "Depth", getVolumeSize().depth() } });
     variantMap["NumberOfComponentsPerVoxel"] = getComponentsPerVoxel();
     variantMap["VolumeFilePaths"] = getVolumeFilePaths();
