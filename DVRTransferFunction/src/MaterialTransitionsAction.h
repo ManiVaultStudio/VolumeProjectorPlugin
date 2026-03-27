@@ -43,14 +43,13 @@ public: // Serialization
 
 signals:
     void transitionChanged(const std::vector<std::vector<QColor>>& transitions);
-	void headersChanged(std::vector<InteractiveShape> interactiveShapes);
+	void headersChanged(const std::vector<InteractiveShape>& interactiveShapes);
 
     void transitionSelected(int row, int column);
 
 	void globalAlphaToggled(bool useGlobalAlpha);
     void globalAlphaChanged(int globalAlphaValue);
-	void tableUpdateNeeded(std::vector<InteractiveShape> interactiveShapes, std::vector<std::vector<QColor>> transitions);
-
+	void tableUpdateNeeded(const std::vector<InteractiveShape>& interactiveShapes, const std::vector<std::vector<QColor>>& transitions);
 
 protected:
     TransferFunctionPlugin*             _transferFunctionPlugin;        /** Pointer to scatterplot plugin */
@@ -74,7 +73,7 @@ protected:
         int                                 _globalAlphaValue = 100;
 
         void updateTable(const std::vector<std::vector<QColor>>& transitions);
-        void updateHeaderColors(std::vector<InteractiveShape> interactiveShapes);
+        void updateHeaderColors(const std::vector<InteractiveShape>& interactiveShapes);
 
         friend class MaterialTransitionsAction;
     };

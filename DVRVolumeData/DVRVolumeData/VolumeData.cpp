@@ -68,6 +68,43 @@ Dataset<DatasetImpl> VolumeData::createDataSet(const QString& guid /*= ""*/) con
     return Dataset<DatasetImpl>(new Volumes(getName(), false, guid));
 }
 
+void VolumeData::fromVariantMap(const QVariantMap& variantMap)
+{
+    RawData::fromVariantMap(variantMap);
+
+    variantMapMustContain(variantMap, "volumeFilePaths");
+
+    if (variantMap.contains("volumeSize")) {
+        const QVariantList volumeSizes = variantMap["volumeSize"].toList();
+        _volumeSize = { volumeSizes[0].toInt(), volumeSizes[1].toInt(), volumeSizes[2].toInt() };
+    }
+
+    if (variantMap.contains("componentsPerVoxel")) {
+        _componentsPerVoxel = variantMap["componentsPerVoxel"].value<quint32>();
+    }
+
+    if (variantMap.contains("volumeFilePaths")) {
+        _volumeFilePaths = variantMap["volumeFilePaths"].toStringList();
+    }
+
+    if (variantMap.contains("dimensionNames")) {
+        _dimensionNames = variantMap["dimensionNames"].toStringList();
+    }
+
+}
+
+QVariantMap VolumeData::toVariantMap() const
+{
+    auto variantMap = RawData::toVariantMap();
+
+    variantMap["volumeSize"]         = QVariantList{ _volumeSize.width(), _volumeSize.height(), _volumeSize.depth() };
+    variantMap["componentsPerVoxel"] = _componentsPerVoxel;
+    variantMap["volumeFilePaths"]    = _volumeFilePaths;
+    variantMap["dimensionNames"]     = _dimensionNames;
+
+    return variantMap;
+}
+
 // =============================================================================
 // Extra features for the VolumeData plugin that have not been updated for volume data TODO
 // =============================================================================

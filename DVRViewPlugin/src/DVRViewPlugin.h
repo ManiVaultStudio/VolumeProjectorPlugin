@@ -12,7 +12,6 @@
 #include "SettingsAction.h"
 
 #include <QWidget>
-#include <DVRVolumeData/VolumeData.h>
 #include <DVRVolumeData/Volumes.h>
 
 /** All plugin related classes are in the ManiVault plugin namespace */
@@ -67,7 +66,7 @@ public:
     void updateMaterialPositionsData();
 
 private:
-    /** We create and publish some data in order to provide an self-contained DVR project */
+    /** We create and publish some data in order to provide a self-contained DVR project */
     std::vector<std::uint32_t> generateSequence(int n);
 
     QString getVolumeDataSetID() const;
@@ -80,14 +79,12 @@ protected:
     DropWidget*                 _dropWidget;                /** Widget for drag and drop behavior */
     DVRWidget*                  _DVRWidget;                 /** The OpenGL widget */
     SettingsAction              _settingsAction;            /** Settings action */
-    mv::Dataset<Volumes>        _volumeDataset;             /** Volume containg the multivariate dataset */
+    mv::Dataset<Volumes>        _volumeDataset;             /** Volume containing the multivariate dataset */
     mv::Dataset<Images>         _tfTexture;                 /** Texture containing the color transfer function data */
     mv::Dataset<Images>         _materialTransitionTexture; /** Texture containing material transition data */
     mv::Dataset<Images>         _materialPositionTexture;   /** Texture containing material position data */
-    mv::Dataset<Points>         _reducedPosDataset;         /** Dataset containing the dimensionality recuded locations of all the points in the volume */
+    mv::Dataset<Points>         _reducedPosDataset;         /** Dataset containing the dimensionality reduced locations of all the points in the volume */
     std::vector<unsigned int>   _currentDimensions;         /** Stores which dimensions of the current data are shown */
-    std::vector<float>          _spatialData;               /** Spatial data */
-    std::vector<float>          _valueData;                 /** Value data */
 };
 
 /**

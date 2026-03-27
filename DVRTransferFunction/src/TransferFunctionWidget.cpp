@@ -2,21 +2,19 @@
 
 #include <CoreInterface.h>
 
+#include <graphics/Bounds.h>
+#include <graphics/Vector3f.h>
 #include <util/Exception.h>
 
 #include <vector>
 
 #include <QDebug>
-#include <QGuiApplication>
-#include <QMatrix4x4>
 #include <QOpenGLFramebufferObject>
 #include <QPainter>
 #include <QSize>
 #include <QWheelEvent>
 #include <QWindow>
 #include <QRectF>
-
-#include <math.h>
 
 #include "TransferFunctionPlugin.h"
 
@@ -246,11 +244,11 @@ QRect TransferFunctionWidget::getMousePositionsBounds(QPoint newMousePosition) {
     if (!_areaSelectionBounds.isValid()) {
 		_areaSelectionBounds = QRect(_mousePositions[0], _mousePositions[0]);
     }
-	int left = std::min(_areaSelectionBounds.left(), newMousePosition.x());
-	int right = std::max(_areaSelectionBounds.right(), newMousePosition.x());
-	int top = std::min(_areaSelectionBounds.top(), newMousePosition.y());
-	int bottom = std::max(_areaSelectionBounds.bottom(), newMousePosition.y());
-    return QRect(QPoint(left, top), QPoint(right, bottom));
+	const int left = std::min(_areaSelectionBounds.left(), newMousePosition.x());
+    const int right = std::max(_areaSelectionBounds.right(), newMousePosition.x());
+    const int top = std::min(_areaSelectionBounds.top(), newMousePosition.y());
+    const int bottom = std::max(_areaSelectionBounds.bottom(), newMousePosition.y());
+    return { QPoint(left, top), QPoint(right, bottom) };
 }
 
 bool TransferFunctionWidget::isInitialized() const
@@ -508,7 +506,7 @@ void TransferFunctionWidget::updateTfTexture()
 		return;
 
 
-    QImage materialMap = QImage(_boundsPointsWindow.width(), _boundsPointsWindow.height(), QImage::Format_ARGB32);
+    auto materialMap = QImage(_boundsPointsWindow.width(), _boundsPointsWindow.height(), QImage::Format_ARGB32);
     QPainter painter(&materialMap);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
@@ -522,10 +520,10 @@ void TransferFunctionWidget::updateTfTexture()
 
 	for (int y = _tfTextureSize - 1; y >= 0; y--) {
         for (int x = 0; x < _tfTextureSize; x++) {
-			int normalizedX = x * materialMap.width() / _tfTextureSize;
-			int normalizedY = y * materialMap.height() / _tfTextureSize;
+			const int normalizedX = x * materialMap.width() / _tfTextureSize;
+			const int normalizedY = y * materialMap.height() / _tfTextureSize;
 
-            QColor color = materialMap.pixelColor(normalizedX, normalizedY);
+            const QColor color = materialMap.pixelColor(normalizedX, normalizedY);
             data.push_back(color.redF());
             data.push_back(color.greenF());
             data.push_back(color.blueF());
@@ -545,7 +543,7 @@ void TransferFunctionWidget::updateMaterialPositionsTexture()
         return;
 
 
-    QImage materialMap = QImage(_boundsPointsWindow.width(), _boundsPointsWindow.height(), QImage::Format_ARGB32);
+    auto materialMap = QImage(_boundsPointsWindow.width(), _boundsPointsWindow.height(), QImage::Format_ARGB32);
     QPainter painter(&materialMap);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
@@ -561,11 +559,11 @@ void TransferFunctionWidget::updateMaterialPositionsTexture()
 
     for (int y = _materialPositionTextureSize - 1; y >= 0; y--) {
         for (int x = 0; x < _materialPositionTextureSize; x++) {
-            int normalizedX = x * materialMap.width() / _materialPositionTextureSize;
-            int normalizedY = y * materialMap.height() / _materialPositionTextureSize;
+            const int normalizedX = x * materialMap.width() / _materialPositionTextureSize;
+            const int normalizedY = y * materialMap.height() / _materialPositionTextureSize;
 
-            QColor color = materialMap.pixelColor(normalizedX, normalizedY);
-            data.push_back(color.red());
+            const QColor color = materialMap.pixelColor(normalizedX, normalizedY);
+            data.push_back(color.redF());
         }
     }
 
@@ -575,7 +573,7 @@ void TransferFunctionWidget::updateMaterialPositionsTexture()
 	events().notifyDatasetDataChanged(_materialPositionTexture);
 }
 
-void TransferFunctionWidget::updateMaterialTransitionTexture(std::vector<std::vector<QColor>> transitionsTable)
+void TransferFunctionWidget::updateMaterialTransitionTexture(const std::vector<std::vector<QColor>>& transitionsTable)
 {
 	if (!_materialTransitionTexture.isValid())
 		return;
@@ -585,11 +583,11 @@ void TransferFunctionWidget::updateMaterialTransitionTexture(std::vector<std::ve
     data.reserve(_materialTextureSize * _materialTextureSize * 4);
 
     //for (int y = _materialTextureSize - 1; y >= 0; y--) {
-    for (int y = 0; y < _materialTextureSize; y++) {
-        for (int x = 0; x < _materialTextureSize; x++) {
+    for (size_t y = 0; y < _materialTextureSize; y++) {
+        for (size_t x = 0; x < _materialTextureSize; x++) {
 			if (y < transitionsTable.size() && x < transitionsTable[y].size()) // If the transition table is not big enough, we fill the rest with black
 			{
-				QColor color = transitionsTable[y][x];
+                const QColor color = transitionsTable[y][x];
 				data.push_back(color.redF());
 				data.push_back(color.greenF());
 				data.push_back(color.blueF());
@@ -622,7 +620,7 @@ void TransferFunctionWidget::cleanup()
 
 void TransferFunctionWidget::updatePixelRatio()
 {
-    float pixelRatio = devicePixelRatio();
+    const float pixelRatio = devicePixelRatio();
 
     // we only update if the ratio actually changed
     if( _pixelRatio != pixelRatio )

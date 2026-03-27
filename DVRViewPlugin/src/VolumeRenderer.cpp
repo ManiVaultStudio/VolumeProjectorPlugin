@@ -254,7 +254,7 @@ void VolumeRenderer::setData(const mv::Dataset<Volumes>& dataset)
         return;
     }
 
-    updataDataTexture();
+    updateDataTexture();
     updateRenderCubes();
 }
 
@@ -275,14 +275,14 @@ void VolumeRenderer::setTfTexture(const mv::Dataset<Images>& tfTexture)
 
     // In these render modes the new dataset will impact the visualization and thus needs to be updated now 
     if (_renderMode == RenderMode::MULTIDIMENSIONAL_COMPOSITE_COLOR || _renderMode == RenderMode::NN_MULTIDIMENSIONAL_COMPOSITE || _renderMode == RenderMode::NN_MaterialTransition || _renderMode == RenderMode::Alt_NN_MaterialTransition || _renderMode == RenderMode::Smooth_NN_MaterialTransition)
-        updataDataTexture();
+        updateDataTexture();
 }
 
 void VolumeRenderer::setReducedPosData(const mv::Dataset<Points>& reducedPosData)
 {
     _reducedPosDataset = reducedPosData;
     if (!_renderMode == RenderMode::MULTIDIMENSIONAL_COMPOSITE_FULL && !_renderMode == RenderMode::MaterialTransition_FULL && _renderMode != RenderMode::MIP) {
-        updataDataTexture(); // The position data is used in the rendering process, so we need to update the data texture (apart from the MIP and full data render modes that either don't need it or define it elsewhere)
+        updateDataTexture(); // The position data is used in the rendering process, so we need to update the data texture (apart from the MIP and full data render modes that either don't need it or define it elsewhere)
     }
 }
 
@@ -334,14 +334,14 @@ void VolumeRenderer::normalizePositionData(std::vector<float>& positionData)
         }
     }
 
-    float rangeX = maxX - minX;
-    float rangeY = maxY - minY;
+    const float rangeX = maxX - minX;
+    const float rangeY = maxY - minY;
 
     int size = _tfDataset->getImageSize().width(); // We use a square texture so width is also height
     if (_renderMode == RenderMode::MaterialTransition_2D || _renderMode == RenderMode::NN_MaterialTransition || _renderMode == RenderMode::Alt_NN_MaterialTransition || _renderMode == RenderMode::MaterialTransition_FULL)
         size = _materialPositionDataset->getImageSize().width();
 
-    for (int i = 0; i < positionData.size(); i += 2)
+    for (size_t i = 0; i < positionData.size(); i += 2)
     {
         positionData[i] = ((positionData[i] - minX) / rangeX) * (size - 1);
         positionData[i + 1] = ((positionData[i + 1] - minY) / rangeY) * (size - 1);
@@ -416,7 +416,7 @@ void VolumeRenderer::loadNNVolumeToTexture(mv::Texture3D& targetVolume, std::vec
     targetVolume.release(); // Unbind the texture
 }
 
-void VolumeRenderer::updataDataTexture()
+void VolumeRenderer::updateDataTexture()
 {
     QPair<float, float> scalarDataRange;
 
@@ -517,7 +517,7 @@ void VolumeRenderer::setUseCustomRenderSpace(bool useCustomRenderSpace)
 }
 
 // Which dimension should we send to the GPU (used for the full data and MIP render modes)
-void VolumeRenderer::setCompositeIndices(std::vector<std::uint32_t> compositeIndices)
+void VolumeRenderer::setCompositeIndices(const std::vector<std::uint32_t>& compositeIndices)
 {
     if (_compositeIndices != compositeIndices)
         _dataSettingsChanged = true;
@@ -1916,7 +1916,7 @@ void VolumeRenderer::render()
     // Check if all datasets are valid before rendering
     if (_volumeDataset.isValid() && _reducedPosDataset.isValid() && _tfDataset.isValid() && _materialPositionDataset.isValid() && _materialTransitionDataset.isValid()) {
         if (_dataSettingsChanged) {
-            updataDataTexture();
+            updateDataTexture();
             _dataSettingsChanged = false;
         }
         if (_renderMode == RenderMode::MaterialTransition_FULL || _renderMode == RenderMode::MULTIDIMENSIONAL_COMPOSITE_FULL)

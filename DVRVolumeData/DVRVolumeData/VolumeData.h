@@ -5,7 +5,7 @@
 #pragma once
 
 #include "dvrvolumedata_export.h"
-#include "Volume.h"
+#include "Size3D.h"
 
 #include <RawData.h>
 #include <Set.h>
@@ -85,6 +85,19 @@ public:
      * @return Smart pointer to dataset
      */
     mv::Dataset<mv::DatasetImpl> createDataSet(const QString& guid = "") const override;
+
+public: // Serialization
+    /**
+     * Load point data from variant map
+     * @param Variant map representation of the point data
+     */
+    void fromVariantMap(const QVariantMap& variantMap);
+
+    /**
+     * Save point data to variant map
+     * @return Variant map representation of the point data
+     */
+    QVariantMap toVariantMap() const;
 
 private:
     Size3D              _volumeSize;                    /** Volume size */

@@ -91,7 +91,7 @@ public:
     void setStepSize(float stepSize);
     void setRenderSpace(mv::Vector3f size);
     void setUseCustomRenderSpace(bool useCustomRenderSpace);
-    void setCompositeIndices(std::vector<std::uint32_t> compositeIndices);
+    void setCompositeIndices(const std::vector<std::uint32_t>& compositeIndices);
 
     void setRenderMode(const QString& renderMode);
     void setMIPDimension(int mipDimension);
@@ -102,7 +102,7 @@ public:
 
     void loadNNVolumeToTexture(mv::Texture3D& targetVolume, std::vector<float>& textureData, QVector<float>& usedTFImage, int width, mv::Vector3f volumeSize, int pointAmount, bool singleValueTFTexture);
 
-    void updataDataTexture();
+    void updateDataTexture();
 
     mv::Vector3f getVolumeSize() const { return _volumeSize; }
     bool getFullRenderModeInProgress() const { return _fullDataModeBatch != -1; }

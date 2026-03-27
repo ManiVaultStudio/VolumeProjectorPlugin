@@ -16,19 +16,14 @@ InteractiveShape::InteractiveShape(const QPixmap& pixmap, const QRectF& rect, co
 }
 
 void InteractiveShape::draw(QPainter& painter, bool drawBorder, bool useGlobalAlpha, bool normalizeWindow /*true*/, QColor borderColor /* Black */) const {
-    QRectF adjustedRect;
-    if (normalizeWindow) {
-        adjustedRect = getRelativeRect();
-    } else {
-        adjustedRect = getAbsoluteRect();
-    }
+    const QRectF adjustedRect = normalizeWindow ? getRelativeRect() : getAbsoluteRect();
     if (drawBorder) {
         QPen pen(borderColor);
         pen.setWidth(2);
         painter.setPen(pen);
         painter.drawRect(adjustedRect);
 
-        QRectF topRightRect(adjustedRect.topRight() - QPointF(_threshold, 0), QSizeF(_threshold, _threshold));
+        const QRectF topRightRect(adjustedRect.topRight() - QPointF(_threshold, 0), QSizeF(_threshold, _threshold));
         painter.setPen(pen);
         painter.drawRect(topRightRect);
     }
@@ -43,13 +38,7 @@ void InteractiveShape::draw(QPainter& painter, bool drawBorder, bool useGlobalAl
 }
 
 void InteractiveShape::drawID(QPainter& painter, bool normalizeWindow, int id) const {
-    QRectF adjustedRect;
-    if (normalizeWindow) {
-        adjustedRect = getRelativeRect();
-    }
-    else {
-        adjustedRect = getAbsoluteRect();
-    }
+    const QRectF adjustedRect = normalizeWindow ? getRelativeRect() : getAbsoluteRect();
 
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     
@@ -90,7 +79,7 @@ void InteractiveShape::resizeBy(const QPointF& delta, SelectedSide& side) {
         break;
     }
     if (_rect.left() > _rect.right()) {
-        qreal temp = _rect.left();
+        const qreal temp = _rect.left();
         _rect.setLeft(_rect.right());
         _rect.setRight(temp);
         if (side == SelectedSide::Left) {
@@ -99,7 +88,7 @@ void InteractiveShape::resizeBy(const QPointF& delta, SelectedSide& side) {
             side = SelectedSide::Left;
         }
     } else if (_rect.top() > _rect.bottom()) {
-        qreal temp = _rect.top();
+        const qreal temp = _rect.top();
         _rect.setTop(_rect.bottom());
         _rect.setBottom(temp);
         if (side == SelectedSide::Top) {
@@ -111,7 +100,7 @@ void InteractiveShape::resizeBy(const QPointF& delta, SelectedSide& side) {
 }
 
 bool InteractiveShape::isNearSide(const QPointF& point, SelectedSide& side) const {
-    QRectF adjustedRect = getRelativeRect();
+    const QRectF adjustedRect = getRelativeRect();
     if (std::abs(point.x() - adjustedRect.left()) <= _threshold && point.y() <= adjustedRect.bottom() && point.y() >= adjustedRect.top()) {
         side = SelectedSide::Left;
         return true;

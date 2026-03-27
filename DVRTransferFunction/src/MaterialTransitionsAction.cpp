@@ -27,7 +27,7 @@ void MaterialTransitionsAction::initialize(TransferFunctionPlugin* transferFunct
 
     TransferFunctionWidget& widget = transferFunctionPlugin->getTransferFunctionWidget();
 
-    connect(&widget, &TransferFunctionWidget::shapeCreated, this, [this, &widget](std::vector<InteractiveShape> interactiveShapes) {
+    connect(&widget, &TransferFunctionWidget::shapeCreated, this, [this, &widget](const std::vector<InteractiveShape>& interactiveShapes) {
 		_interactiveShapes = interactiveShapes;
         
         // Resize the table to the new size
@@ -53,7 +53,7 @@ void MaterialTransitionsAction::initialize(TransferFunctionPlugin* transferFunct
 		emit headersChanged(interactiveShapes);
         });
 
-	connect(&widget, &TransferFunctionWidget::shapeDeleted, this, [this, &widget](std::vector<InteractiveShape> interactiveShapes) {
+	connect(&widget, &TransferFunctionWidget::shapeDeleted, this, [this, &widget](const std::vector<InteractiveShape>& interactiveShapes) {
         _interactiveShapes = interactiveShapes;
         
         // Resize the table to the new size
@@ -157,7 +157,7 @@ MaterialTransitionsAction::Widget::Widget(QWidget* parent, MaterialTransitionsAc
         updateTable(transitions);
         });
 
-	connect(materialTransitionsAction, &MaterialTransitionsAction::headersChanged, this, [this, materialTransitionsAction](std::vector<InteractiveShape> interactiveShapes) {
+	connect(materialTransitionsAction, &MaterialTransitionsAction::headersChanged, this, [this, materialTransitionsAction](const std::vector<InteractiveShape>& interactiveShapes) {
 		updateHeaderColors(interactiveShapes);
 		});
 
@@ -173,7 +173,7 @@ MaterialTransitionsAction::Widget::Widget(QWidget* parent, MaterialTransitionsAc
 		_globalAlphaValue = globalAlphaValue;
 		});
 
-	connect(materialTransitionsAction, &MaterialTransitionsAction::tableUpdateNeeded, this, [this, materialTransitionsAction](std::vector<InteractiveShape> interactiveShapes, std::vector<std::vector<QColor>> transitions
+	connect(materialTransitionsAction, &MaterialTransitionsAction::tableUpdateNeeded, this, [this, materialTransitionsAction](const std::vector<InteractiveShape>& interactiveShapes, const std::vector<std::vector<QColor>>& transitions
 		) {
 			updateTable(transitions);
 			updateHeaderColors(interactiveShapes);
@@ -202,7 +202,7 @@ void MaterialTransitionsAction::Widget::updateTable(const std::vector<std::vecto
     }
 }
 
-void MaterialTransitionsAction::Widget::updateHeaderColors(std::vector<InteractiveShape> interactiveShapes)
+void MaterialTransitionsAction::Widget::updateHeaderColors(const std::vector<InteractiveShape>& interactiveShapes)
 {
     const int size = static_cast<int>(interactiveShapes.size()) + 1;
     // Set the background color for the headers

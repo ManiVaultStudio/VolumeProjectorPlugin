@@ -5,11 +5,7 @@
 
 #include <util/PixelSelectionTool.h>
 
-#include <actions/DecimalRectangleAction.h>
-
-#include <graphics/Bounds.h>
 #include <graphics/Vector2f.h>
-#include <graphics/Vector3f.h>
 
 #include <QOpenGLFunctions_3_3_Core>
 #include <QOpenGLWidget>
@@ -17,7 +13,6 @@
 
 #include "InteractiveShape.h"
 #include "ImageData/Images.h"
-
 
 class TransferFunctionPlugin;
 
@@ -47,7 +42,7 @@ public:
     bool isInitialized() const;
 
 	// This method is public because the UI decides when to update the widget
-    void updateMaterialTransitionTexture(std::vector<std::vector<QColor>> transitionsTable);
+    void updateMaterialTransitionTexture(const std::vector<std::vector<QColor>>& transitionsTable);
 
 	InteractiveShape* getSelectedObject() { return _selectedObject; }
 	std::vector<InteractiveShape>& getInteractiveShapes() { return _interactiveShapes; }
@@ -75,10 +70,6 @@ public:
     void setPointOpacity(float pointOpacity);
 
     void showHighlights(bool show);
-
-    mv::Bounds getBounds() const {
-        return _dataRectangleAction.getBounds();
-    }
 
 	void setGlobalAlphaToggle(bool useGlobalAlpha);
 	void setGlobalAlphaValue(int globalAlphaValue);
@@ -154,8 +145,8 @@ signals:
 
 	// Signals when a new shape gets selected and passes a pointer of it
 	void shapeSelected(InteractiveShape* shape);
-	void shapeCreated(std::vector<InteractiveShape> interactiveShapes);
-	void shapeDeleted(std::vector<InteractiveShape> interactiveShapes);
+	void shapeCreated(const std::vector<InteractiveShape>& interactiveShapes);
+	void shapeDeleted(const std::vector<InteractiveShape>& interactiveShapes);
     
 private slots:
     void updatePixelRatio();
