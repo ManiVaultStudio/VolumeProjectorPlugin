@@ -171,7 +171,7 @@ private:
 	QRect 						    _areaSelectionBounds;               /** Area selection bounds */
 	QRect 						    _boundsPointsWindow; 		        /** Bounds of the points in the UI window */
 
-	std::vector<InteractiveShape>   _interactiveShapes;                 /** Stores all the interactive shapes in the transferfunction widget*/
+	std::vector<InteractiveShape>   _interactiveShapes;                 /** Stores all the interactive shapes in the transfer function widget*/
 	InteractiveShape*               _selectedObject = nullptr;	        /** Pointer to the selected object */
 	SelectedSide					_selectedSide = SelectedSide::None; /** Selected side of the object */
 	bool 						    _createShape = false;               /** Boolean determining whether a shape is to be created or not */
