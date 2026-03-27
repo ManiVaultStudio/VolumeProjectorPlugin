@@ -154,7 +154,7 @@ QColor InteractiveShape::getColor() const {
 }
 
 bool InteractiveShape::isNearTopRightCorner(const QPointF& point) const {
-    QPointF topRight = getRelativeRect().topRight();
+    const QPointF topRight = getRelativeRect().topRight();
     return (std::abs(point.x() - topRight.x()) <= _threshold && std::abs(point.y() - topRight.y()) <= _threshold);
 }
 
