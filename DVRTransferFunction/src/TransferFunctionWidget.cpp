@@ -515,20 +515,29 @@ void TransferFunctionWidget::updateTfTexture()
 #else
     materialMap = materialMap.mirrored(false, true);
 #endif
+
+    constexpr float inv255 = 1.0f / 255.0f;
     constexpr int tfDataSize = _tfTextureSize * _tfTextureSize * 4;
     std::vector<float> tfData(tfDataSize, 0.0f);
+
+    auto pixels = reinterpret_cast<const uint32_t*>(materialMap.constBits());
+    const size_t stride = materialMap.bytesPerLine() / sizeof(uint32_t);
 
     size_t tfDataId = 0;
 	for (int y = _tfTextureSize - 1; y >= 0; y--) {
         for (int x = 0; x < _tfTextureSize; x++) {
-			const int normalizedX = x * materialMap.width() / _tfTextureSize;
-			const int normalizedY = y * materialMap.height() / _tfTextureSize;
 
-            const QColor color = materialMap.pixelColor(normalizedX, normalizedY);
-            tfData[tfDataId++] = color.redF();
-            tfData[tfDataId++] = color.greenF();
-            tfData[tfDataId++] = color.blueF();
-            tfData[tfDataId++] = color.alphaF();
+            const uint32_t pixel = pixels[y * stride + x];
+
+            if (pixel == 0) {
+                tfDataId += 4;
+                continue;
+            }
+
+        	tfData[tfDataId++] = static_cast<float>((pixel >> 16) & 0xFF) * inv255;
+            tfData[tfDataId++] = static_cast<float>((pixel >> 8) & 0xFF) * inv255;
+            tfData[tfDataId++] = static_cast<float>((pixel) & 0xFF) * inv255;
+            tfData[tfDataId++] = static_cast<float>((pixel >> 24) & 0xFF) * inv255;
         }
     }
 
@@ -560,17 +569,19 @@ void TransferFunctionWidget::updateMaterialPositionsTexture()
 #else
     materialMap = materialMap.mirrored(false, true);
 #endif
+
+    constexpr float inv255 = 1.0f / 255.0f;
     constexpr auto materialPositionDataSize = _materialPositionTextureSize * _materialPositionTextureSize;
     std::vector<float> materialPositionData(materialPositionDataSize, 0.0f);
+
+    auto pixels = reinterpret_cast<const uint32_t*>(materialMap.constBits());
+    const size_t stride = materialMap.bytesPerLine() / sizeof(uint32_t);
 
     size_t materialPositionDataId = 0;
     for (int y = _materialPositionTextureSize - 1; y >= 0; y--) {
         for (int x = 0; x < _materialPositionTextureSize; x++) {
-            const int normalizedX = x * materialMap.width() / _materialPositionTextureSize;
-            const int normalizedY = y * materialMap.height() / _materialPositionTextureSize;
-
-            const QColor color = materialMap.pixelColor(normalizedX, normalizedY);
-            materialPositionData[materialPositionDataId++] = color.redF();
+            const uint32_t pixel = pixels[y * stride + x];
+            materialPositionData[materialPositionDataId++] = static_cast<float>((pixel >> 16) & 0xFF) * inv255;
         }
     }
 
