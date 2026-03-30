@@ -88,12 +88,11 @@ TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
             return dropRegions;
 
         const auto dataset         = datasetsMimeData->getDatasets().first();
-        const auto datasetGuiName   = dataset->text();
-        const auto datasetId        = dataset->getId();
-        const auto dataType         = dataset->getDataType();
 
         // Points dataset is about to be dropped
-        if (dataType == PointType) {
+        if (dataset->getDataType() == PointType) {
+            const auto datasetGuiName = dataset->text();
+            const auto datasetId = dataset->getId();
 
             // Get points dataset from the core
             auto candidateDataset = mv::data().getDataset<Points>(datasetId);
