@@ -91,11 +91,6 @@ TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
         const auto datasetGuiName   = dataset->text();
         const auto datasetId        = dataset->getId();
         const auto dataType         = dataset->getDataType();
-        const auto dataTypes        = DataTypes({ PointType , ColorType, ClusterType });
-
-        // Check if the data type can be dropped
-        if (!dataTypes.contains(dataType))
-            dropRegions << new DropWidget::DropRegion(this, "Incompatible data", "This type of data is not supported", "exclamation-circle", false);
 
         // Points dataset is about to be dropped
         if (dataType == PointType) {
@@ -124,6 +119,10 @@ TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
 					dropRegions << new DropWidget::DropRegion(this, "Incompatible data", "Only 2D point data is supported", "exclamation-circle", false);
                 }
             }
+        }
+        else
+        {
+            dropRegions << new DropWidget::DropRegion(this, "Incompatible data", "This type of data is not supported", "exclamation-circle", false);
         }
 
         return dropRegions;
