@@ -153,10 +153,6 @@ TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
     getLearningCenterAction().addVideos(QStringList({ "Practitioner", "Developer" }));
 }
 
-TransferFunctionPlugin::~TransferFunctionPlugin()
-{
-}
-
 void TransferFunctionPlugin::init()
 {
     auto layout = new QVBoxLayout();

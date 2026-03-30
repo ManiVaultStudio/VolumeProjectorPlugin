@@ -31,7 +31,7 @@ class TransferFunctionPlugin : public ViewPlugin
 
 public:
     TransferFunctionPlugin(const PluginFactory* factory);
-    ~TransferFunctionPlugin() override;
+    ~TransferFunctionPlugin() override = default;
 
     void init() override;
 
