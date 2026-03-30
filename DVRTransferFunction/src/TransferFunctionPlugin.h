@@ -95,8 +95,6 @@ private:
     QPointer<MaterialSettings>			_materialSettings;          /** Material settings action */
     QPointer<HorizontalToolbarAction>   _primaryToolbarAction;      /** Horizontal toolbar for primary content */
 
-    static const std::int32_t LAZY_UPDATE_INTERVAL = 2;
-
 };
 
 // =============================================================================
