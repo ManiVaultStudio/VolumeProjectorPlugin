@@ -181,8 +181,8 @@ bool TransferFunctionWidget::event(QEvent* event)
                 _createShape = true;
             else
 				emit shapeSelected(_selectedObject);
-            break;
         }
+        break;
     }
     case QEvent::MouseMove:
     {
