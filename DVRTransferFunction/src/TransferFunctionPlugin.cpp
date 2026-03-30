@@ -87,7 +87,7 @@ TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
         if (datasetsMimeData->getDatasets().count() > 1)
             return dropRegions;
 
-        const auto& dataset         = datasetsMimeData->getDatasets().first();
+        const auto dataset         = datasetsMimeData->getDatasets().first();
         const auto datasetGuiName   = dataset->text();
         const auto datasetId        = dataset->getId();
         const auto dataType         = dataset->getDataType();
