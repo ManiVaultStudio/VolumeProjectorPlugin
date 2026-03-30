@@ -31,7 +31,7 @@ class TransferFunctionPlugin : public ViewPlugin
 
 public:
     TransferFunctionPlugin(const PluginFactory* factory);
-    ~TransferFunctionPlugin() override;
+    ~TransferFunctionPlugin() override = default;
 
     void init() override;
 
@@ -94,8 +94,6 @@ private:
     QPointer<SettingsAction>            _settingsAction;            /** Group action for all settings */
     QPointer<MaterialSettings>			_materialSettings;          /** Material settings action */
     QPointer<HorizontalToolbarAction>   _primaryToolbarAction;      /** Horizontal toolbar for primary content */
-
-    static const std::int32_t LAZY_UPDATE_INTERVAL = 2;
 
 };
 

@@ -87,18 +87,12 @@ TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
         if (datasetsMimeData->getDatasets().count() > 1)
             return dropRegions;
 
-        const auto& dataset         = datasetsMimeData->getDatasets().first();
-        const auto datasetGuiName   = dataset->text();
-        const auto datasetId        = dataset->getId();
-        const auto dataType         = dataset->getDataType();
-        const auto dataTypes        = DataTypes({ PointType , ColorType, ClusterType });
-
-        // Check if the data type can be dropped
-        if (!dataTypes.contains(dataType))
-            dropRegions << new DropWidget::DropRegion(this, "Incompatible data", "This type of data is not supported", "exclamation-circle", false);
+        const auto dataset         = datasetsMimeData->getDatasets().first();
 
         // Points dataset is about to be dropped
-        if (dataType == PointType) {
+        if (dataset->getDataType() == PointType) {
+            const auto datasetGuiName = dataset->text();
+            const auto datasetId = dataset->getId();
 
             // Get points dataset from the core
             auto candidateDataset = mv::data().getDataset<Points>(datasetId);
@@ -124,6 +118,10 @@ TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
 					dropRegions << new DropWidget::DropRegion(this, "Incompatible data", "Only 2D point data is supported", "exclamation-circle", false);
                 }
             }
+        }
+        else
+        {
+            dropRegions << new DropWidget::DropRegion(this, "Incompatible data", "This type of data is not supported", "exclamation-circle", false);
         }
 
         return dropRegions;
@@ -153,10 +151,6 @@ TransferFunctionPlugin::TransferFunctionPlugin(const PluginFactory* factory) :
     getSamplerAction().getEnabledAction().setChecked(false);
 
     getLearningCenterAction().addVideos(QStringList({ "Practitioner", "Developer" }));
-}
-
-TransferFunctionPlugin::~TransferFunctionPlugin()
-{
 }
 
 void TransferFunctionPlugin::init()
